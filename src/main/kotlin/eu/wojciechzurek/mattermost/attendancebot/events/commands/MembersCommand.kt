@@ -12,7 +12,7 @@ import java.util.*
 import java.util.stream.Collectors
 
 @Component
-class ChannelMembersCommand(
+class MembersCommand(
         private val messageSource: MessageSource
 ) : CommandSubscriber() {
 
