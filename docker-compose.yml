@@ -1,0 +1,18 @@
+version: '3'
+
+services:
+  postgres:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      TZ: "GMT+1"
+      PGTZ: 'GMT+1'
+      POSTGRES_DB: "mattermost-attendance-bot-test"
+      POSTGRES_USER: "sa"
+      POSTGRES_PASSWORD: "123456"
+
+  mattermost-attendance-bot:
+    image: eu.wojciechzurek/mattermost-attendance-bot:0.0.1
+    ports:
+      - "9090:9090"
