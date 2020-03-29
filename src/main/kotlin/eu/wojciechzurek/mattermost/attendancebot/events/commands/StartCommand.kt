@@ -1,17 +1,16 @@
 package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
-import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.domain.Attendance
-import eu.wojciechzurek.mattermost.attendancebot.domain.AttendanceStatus
+import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.domain.User
-import eu.wojciechzurek.mattermost.attendancebot.domain.UserStatus
+import eu.wojciechzurek.mattermost.attendancebot.domain.UserMMStatus
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
+import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
-import kotlinx.coroutines.reactive.awaitFirstOrElse
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
@@ -33,9 +32,9 @@ class StartCommand(
 
     override fun getHelp(): String = " !start - start your new working day. You can use this command only once per day."
 
-    override fun onEvent(event: Event, message: String) = now(event)
+    override fun onEvent(event: Event, message: String) = start(event)
 
-    private fun now(event: Event) {
+    private fun start(event: Event) {
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
         val channelName = event.data.channelName
@@ -48,43 +47,46 @@ class StartCommand(
                     mattermostService
                             .user(userId)
                             .map {
-                                User(
-                                        it.id, UUID.randomUUID(), it.userName, it.email, channelId, channelName!!, channelDisplayName!!, UserStatus.UNKNOWN, LocalDateTime.now()
-                                )
+                                User(it.id, UUID.randomUUID(), it.userName, it.email, channelId, channelName!!, channelDisplayName!!, UserMMStatus.UNKNOWN, WorkStatus.ONLINE, LocalDateTime.now(), LocalDateTime.now())
                                         .setNew(true)
-                            }.flatMap { userRepository.save(it) }
+                            }
+                            .flatMap { userRepository.save(it) }
                 }
-                .flatMap {
+                .flatMap { user ->
                     attendanceRepository
-                            .findByMMUserIdAndWorkDate(it.userId, date)
+                            .findByMMUserIdAndWorkDate(user.userId, date)
                             .map { att ->
-                                val message = when (att.status) {
-                                    AttendanceStatus.IN_WORK -> {
+                                val message = when (user.workStatus) {
+                                    WorkStatus.ONLINE, WorkStatus.AWAY -> {
                                         "${event.data.senderName}\n" +
                                                 "You are in work already :sunglasses: \n" +
                                                 "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
-                                                "Remember to stop your job with !stop command.\n"
+                                                "Remember to stop your work with !stop command.\n"
                                     }
-                                    AttendanceStatus.AFTER_WORK -> {
+                                    WorkStatus.OFFLINE -> {
                                         "${event.data.senderName}\n" +
                                                 "You are after work. Stay save at home :mask: \n" +
-                                                "Work stop time: " + att.signOutDate.toStringDateTime() + "\n" +
+                                                "Last work stop time: " + att.signOutDate.toStringDateTime() + "\n" +
                                                 "See you next time.\n"
                                     }
                                 }
-                                Post(channelId = event.data.post.channelId, message = message)
+                                Post(channelId = channelId, message = message)
                             }
                             .switchIfEmpty {
-                                Mono
-                                        .just(Attendance(null, UUID.randomUUID(), it.userId))
+
+                                user.workStatus = WorkStatus.ONLINE
+
+                                userRepository
+                                        .save(user)
+                                        .map { Attendance(null, UUID.randomUUID(), it.userId) }
                                         .flatMap { att -> attendanceRepository.save(att) }
-                                        .map {
+                                        .map { att ->
                                             Post(
-                                                    channelId = event.data.post.channelId,
+                                                    channelId = channelId,
                                                     message = "${event.data.senderName}\n" +
-                                                            "Work start time: " + it.signInDate.toStringDateTime() + "\n" +
-                                                            "You should end up after : " + (it.signInDate + workTimeInMillis).toStringDateTime() + "\n" +
-                                                            "Remember to stop your job with !stop command.\n" +
+                                                            "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
+                                                            "You should end up after : " + (att.signInDate + workTimeInMillis).toStringDateTime() + "\n" +
+                                                            "Remember to stop your work with !stop command.\n" +
                                                             "Thanks :smiley: You are at work right now . Have a nice day :innocent:\n"
                                             )
                                         }
@@ -93,12 +95,6 @@ class StartCommand(
                 }
                 .map { EphemeralPost(userId, it) }
                 .subscribe { mattermostService.ephemeralPost(it) }
-//
-//        val user = User(
-//                null,
-//
-//        )
-
 
     }
 }

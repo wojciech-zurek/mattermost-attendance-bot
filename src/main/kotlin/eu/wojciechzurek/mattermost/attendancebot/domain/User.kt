@@ -33,9 +33,13 @@ data class User(
         val channelDisplayName: String,
 
         @Column("mm_status")
-        val userStatus: UserStatus,
+        val userMMStatus: UserMMStatus,
 
-        val createDate: LocalDateTime
+        var workStatus: WorkStatus,
+
+        val createDate: LocalDateTime,
+
+        var updateDate: LocalDateTime
 
 ) : Persistable<String> {
 

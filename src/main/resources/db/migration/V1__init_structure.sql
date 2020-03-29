@@ -10,7 +10,9 @@ CREATE TABLE mm_users
     mm_channel_name         VARCHAR      NOT NULL,
     mm_channel_display_name VARCHAR      NOT NULL,
     mm_status               VARCHAR(16)  NOT NULL,
+    work_status             VARCHAR(16)  NOT NULL,
     create_date             TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
+    update_date             TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW(),
     PRIMARY KEY (mm_user_id)
 );
 
@@ -25,9 +27,8 @@ CREATE TABLE IF NOT EXISTS attendance
     work_date     DATE        NOT NULL DEFAULT NOW(),
     sign_in_date  BIGINT      NOT NULL,
     sign_out_date BIGINT      NOT NULL,
-    work_time     INT         NOT NULL DEFAULT 0,
-    absence_time  INT         NOT NULL DEFAULT 0,
-    status        VARCHAR(16) NOT NULL,
+    work_time     BIGINT      NOT NULL DEFAULT 0,
+    absence_time  BIGINT      NOT NULL DEFAULT 0,
     PRIMARY KEY (id)
 );
 

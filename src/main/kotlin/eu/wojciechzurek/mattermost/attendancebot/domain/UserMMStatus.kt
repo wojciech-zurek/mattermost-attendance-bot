@@ -1,5 +1,5 @@
 package eu.wojciechzurek.mattermost.attendancebot.domain
 
-enum class UserStatus {
+enum class UserMMStatus {
     ONLINE, AWAY, BUSY, OFFLINE, UNKNOWN
 }
