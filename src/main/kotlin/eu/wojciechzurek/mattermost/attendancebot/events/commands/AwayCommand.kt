@@ -3,67 +3,72 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.domain.Absence
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
+import eu.wojciechzurek.mattermost.attendancebot.repository.AbsencesRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
-import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.util.*
 
 @Component
-class StopCommand(
+class AwayCommand(
         private val userRepository: UserRepository,
-        private val attendanceRepository: AttendanceRepository
+        private val attendanceRepository: AttendanceRepository,
+        private val absencesRepository: AbsencesRepository
+
 ) : CommandSubscriber() {
+
     private val logger = loggerFor(this.javaClass)
 
-    private val workTimeInMillis = 28800000
+    override fun getPrefix(): String = "!away"
 
-    override fun getPrefix(): String = "!stop"
+    override fun getHelp(): String = " !away - away from computer/home."
 
-    override fun getHelp(): String = " !stop - stop your working day. You can use this command only once per day."
+    override fun onEvent(event: Event, message: String) = away(event)
 
-    override fun onEvent(event: Event, message: String) = stop(event)
-
-    private fun stop(event: Event) {
+    private fun away(event: Event) {
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
+
+        val now = LocalDateTime.now()
+        val date = LocalDate.now()
 
         userRepository
                 .findById(userId)
                 .filter { it.workStatus == WorkStatus.ONLINE }
                 .map {
-                    val now = LocalDateTime.now()
                     it.copy(
-                            workStatus = WorkStatus.OFFLINE,
+                            workStatus = WorkStatus.AWAY,
                             workStatusUpdateDate = now,
                             updateDate = now
                     )
                 }
                 .flatMap { userRepository.save(it) }
-                .flatMap { attendanceRepository.findByMMUserIdAndWorkDate(it.userId, LocalDate.now()) }
+                .flatMap { attendanceRepository.findByMMUserIdAndWorkDate(it.userId, date) }
                 .map {
-                    val current = System.currentTimeMillis()
-                    it.copy(
-                            signOutDate = current,
-                            workTime = current - it.signInDate
+                    Absence(
+                            null,
+                            UUID.randomUUID(),
+                            it.id!!,
+                            it.userId
                     )
                 }
-                .flatMap { attendanceRepository.save(it) }
+                .flatMap { absencesRepository.save(it) }
                 .map {
                     Post(
                             channelId = channelId,
                             message = "${event.data.senderName}\n" +
-                                    "You are OFFLINE right now :sunglasses: \n" +
-                                    "Work stop time: " + it.signOutDate.toStringDateTime() + "\n" +
-                                    "Today work time : " + it.workTime.toTime() + "\n" +
-                                    "Today away time : " + it.awayTime.toTime() + "\n" +
-                                    "Thanks :smiley: You are after work. Have a nice day.\n"
+                                    "You are AWAY right now :smiling_imp: \n" +
+                                    "Away start time: " + it.awayTime.toStringDateTime() + "\n" +
+                                    "Remember to resume your work with !online command.\n" +
+                                    "Thanks :smiley: See you soon as possible.\n"
                     )
                 }
                 .switchIfEmpty {

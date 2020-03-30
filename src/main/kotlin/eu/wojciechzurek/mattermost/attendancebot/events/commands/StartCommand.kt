@@ -39,7 +39,7 @@ class StartCommand(
         val channelId = event.data.post.channelId
         val channelName = event.data.channelName
         val channelDisplayName = event.data.channelDisplayName
-        val date = LocalDate.now()
+        val now = LocalDateTime.now()
 
         userRepository
                 .findById(userId)
@@ -47,25 +47,36 @@ class StartCommand(
                     mattermostService
                             .user(userId)
                             .map {
-                                User(it.id, UUID.randomUUID(), it.userName, it.email, channelId, channelName!!, channelDisplayName!!, UserMMStatus.UNKNOWN, WorkStatus.ONLINE, LocalDateTime.now(), LocalDateTime.now())
-                                        .setNew(true)
+
+                                User(it.id, UUID.randomUUID(), it.userName, it.email,
+                                        channelId, channelName!!, channelDisplayName!!, UserMMStatus.UNKNOWN,
+                                        WorkStatus.ONLINE, now, now, now)
+                                        .setNew()
                             }
                             .flatMap { userRepository.save(it) }
                 }
                 .flatMap { user ->
                     attendanceRepository
-                            .findByMMUserIdAndWorkDate(user.userId, date)
+                            .findByMMUserIdAndWorkDate(user.userId, LocalDate.now())
                             .map { att ->
                                 val message = when (user.workStatus) {
-                                    WorkStatus.ONLINE, WorkStatus.AWAY -> {
+                                    WorkStatus.ONLINE -> {
                                         "${event.data.senderName}\n" +
-                                                "You are in work already :sunglasses: \n" +
+                                                "Sorry but you are ONLINE already :thinking: \n" +
                                                 "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
-                                                "Remember to stop your work with !stop command.\n"
+                                                "Remember to stop your work with !stop command.\n" +
+                                                "Thanks :smiley: Have a nice day.\n"
                                     }
+                                    WorkStatus.AWAY -> {
+                                        "${event.data.senderName}\n" +
+                                                "Sorry but you are AWAY right now :thinking: \n" +
+                                                "Remember to resume your work with !online command.\n"
+                                    }
+
                                     WorkStatus.OFFLINE -> {
                                         "${event.data.senderName}\n" +
-                                                "You are after work. Stay save at home :mask: \n" +
+                                                "Sorry but you are OFFLINE and after work :thinking: \n" +
+                                                "Stay save at home :mask: \n" +
                                                 "Last work stop time: " + att.signOutDate.toStringDateTime() + "\n" +
                                                 "See you next time.\n"
                                     }
@@ -75,6 +86,9 @@ class StartCommand(
                             .switchIfEmpty {
 
                                 user.workStatus = WorkStatus.ONLINE
+                                user.workStatusUpdateDate = now
+                                user.updateDate = now
+                                user.setOld()
 
                                 userRepository
                                         .save(user)
@@ -84,10 +98,11 @@ class StartCommand(
                                             Post(
                                                     channelId = channelId,
                                                     message = "${event.data.senderName}\n" +
+                                                            "You are ONLINE right now :innocent: \n" +
                                                             "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
                                                             "You should end up after : " + (att.signInDate + workTimeInMillis).toStringDateTime() + "\n" +
                                                             "Remember to stop your work with !stop command.\n" +
-                                                            "Thanks :smiley: You are at work right now . Have a nice day :innocent:\n"
+                                                            "Thanks :smiley: Have a nice day.\n"
                                             )
                                         }
 

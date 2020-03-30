@@ -37,6 +37,8 @@ data class User(
 
         var workStatus: WorkStatus,
 
+        var workStatusUpdateDate: LocalDateTime,
+
         val createDate: LocalDateTime,
 
         var updateDate: LocalDateTime
@@ -48,8 +50,13 @@ data class User(
 
     override fun isNew(): Boolean = new
 
-    fun setNew(new: Boolean): User {
-        this.new = new
+    fun setNew(): User {
+        this.new = true
+        return this
+    }
+
+    fun setOld(): User {
+        this.new = false
         return this
     }
 

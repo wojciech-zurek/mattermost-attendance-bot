@@ -11,9 +11,6 @@ interface AttendanceRepository : ReactiveCrudRepository<Attendance, Long> {
     @Query("SELECT * FROM attendance WHERE mm_user_id = :user_id AND work_date = :work_date")
     fun findByMMUserIdAndWorkDate(userId: String, workDate: LocalDate): Mono<Attendance>
 
-//    @Query("DELETE FROM alerts WHERE public_id = :publicId AND user_id = :userId")
-//    fun deleteByPublicIdAndUserId(publicId: UUID, userId: String): Mono<Void>
-//
-//    @Query("DELETE FROM alerts WHERE public_id = :publicId")
-//    fun deleteByPublicId(publicId: UUID): Mono<Void>
+    @Query("SELECT * FROM attendance WHERE mm_user_id = :user_id ORDER BY id DESC LIMIT 1")
+    fun findLatestByMMUserId(userId: String): Mono<Attendance>
 }

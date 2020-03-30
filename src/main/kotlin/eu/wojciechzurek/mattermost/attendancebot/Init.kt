@@ -33,6 +33,8 @@ class Init(
             session.receive()
                     .map { it.payloadAsText }
                     .doOnNext { logger.info("WS Event: {}", it) }
+                    .doOnError { logger.info("WS Error: {}", it.message) }
+                    .doOnTerminate { logger.info("WS connection terminate.") }
                     .map { mapper.readValue(it, Event::class.java) }
 //                    .doOnNext { println(it) }
                     .map { dispatcherService.onNext(it) }
