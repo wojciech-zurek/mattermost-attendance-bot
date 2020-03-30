@@ -5,6 +5,7 @@ import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
+import eu.wojciechzurek.mattermost.attendancebot.milli
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
@@ -28,8 +29,6 @@ class StatusCommand(
 
     override fun onEvent(event: Event, message: String) = getUserInfo(event)
 
-    private fun milli(dateTime: LocalDateTime): Long = dateTime.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()
-
     private fun getUserInfo(event: Event) {
         val userId = event.data.post!!.userId!!
         userRepository
@@ -37,13 +36,13 @@ class StatusCommand(
                 .map {
                     val message = when (it.t1.workStatus) {
                         WorkStatus.ONLINE -> {
-                            "Online time: ${(System.currentTimeMillis() - milli(it.t1.workStatusUpdateDate)).toTime()}\n" +
+                            "Online time: ${(System.currentTimeMillis() - it.t1.workStatusUpdateDate.milli()).toTime()}\n" +
                                     "Work start time: ${it.t2.signInDate.toStringDateTime()}\n" +
                                     "Today total away time: ${it.t2.awayTime.toTime()}\n"
 
                         }
                         WorkStatus.AWAY -> {
-                            val away = System.currentTimeMillis() - milli(it.t1.workStatusUpdateDate)
+                            val away = System.currentTimeMillis() - it.t1.workStatusUpdateDate.milli()
                             "Away time: ${away.toTime()}\n" +
                                     "Today total away time: ${(it.t2.awayTime + away).toTime()}\n" +
                                     "Work start time: ${it.t2.signInDate.toStringDateTime()}\n"
