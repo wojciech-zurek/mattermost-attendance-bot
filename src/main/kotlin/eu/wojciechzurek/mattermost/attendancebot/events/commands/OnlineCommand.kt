@@ -13,8 +13,10 @@ import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 @Component
 class OnlineCommand(
@@ -34,7 +36,7 @@ class OnlineCommand(
     private fun online(event: Event) {
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
-        val now = LocalDateTime.now()
+        val now = OffsetDateTime.now()
 
         userRepository
                 .findById(userId)
@@ -55,9 +57,9 @@ class OnlineCommand(
                             }
                 }
                 .map {
-                    it.t1.onlineTime = System.currentTimeMillis()
+                    it.t1.onlineTime = now
                     it.t1.onlineType = StatusType.MANUAL
-                    val awayTime = (it.t1.onlineTime!! - it.t1.awayTime)
+                    val awayTime = Duration.between(it.t1.awayTime, it.t1.onlineTime!!).seconds
                     it.t2.awayTime = it.t2.awayTime + awayTime
                     it
                 }
@@ -69,7 +71,7 @@ class OnlineCommand(
                             channelId = channelId,
                             message = "${event.data.senderName}\n" +
                                     "You are ONLINE right now :innocent: \n" +
-                                    "Away time: " + (it.t1.onlineTime!! - it.t1.awayTime).toTime() + "\n" +
+                                    "Away time: " + Duration.between(it.t1.awayTime, it.t1.onlineTime!!).seconds.toTime() + "\n" +
                                     "Today total away time: " + (it.t2.awayTime).toTime() + "\n" +
                                     "Thanks :smiley: Go back to work.\n"
                     )

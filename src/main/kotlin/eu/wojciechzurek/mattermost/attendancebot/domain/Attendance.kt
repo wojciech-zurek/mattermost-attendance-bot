@@ -4,6 +4,7 @@ import org.springframework.data.annotation.Id
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import java.time.LocalDate
+import java.time.OffsetDateTime
 import java.util.*
 
 @Table("attendance")
@@ -18,8 +19,8 @@ data class Attendance(
 
         val workDate: LocalDate = LocalDate.now(),
 
-        val signInDate: Long = System.currentTimeMillis(),
-        var signOutDate: Long = 0L,
+        val signInDate: OffsetDateTime,
+        var signOutDate: OffsetDateTime? = null,
 
         var workTime: Long = 0L,
         var awayTime: Long = 0L

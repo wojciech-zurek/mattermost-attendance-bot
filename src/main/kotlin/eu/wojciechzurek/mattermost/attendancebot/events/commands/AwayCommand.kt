@@ -15,6 +15,7 @@ import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 @Component
@@ -29,15 +30,15 @@ class AwayCommand(
 
     override fun getPrefix(): String = "!away"
 
-    override fun getHelp(): String = " !away - away from computer/home."
+    override fun getHelp(): String = " !away [reason] - away from computer/home. Optional reason."
 
-    override fun onEvent(event: Event, message: String) = away(event)
+    override fun onEvent(event: Event, message: String) = away(event, message)
 
-    private fun away(event: Event) {
+    private fun away(event: Event, message: String) {
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
 
-        val now = LocalDateTime.now()
+        val now = OffsetDateTime.now()
         val date = LocalDate.now()
 
         userRepository
@@ -57,7 +58,9 @@ class AwayCommand(
                             null,
                             UUID.randomUUID(),
                             it.id!!,
-                            it.userId
+                            it.userId,
+                            message,
+                            now
                     )
                 }
                 .flatMap { absencesRepository.save(it) }

@@ -5,7 +5,7 @@ import org.springframework.data.annotation.Transient
 import org.springframework.data.domain.Persistable
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
-import java.time.LocalDateTime
+import java.time.OffsetDateTime
 import java.util.*
 
 @Table("mm_users")
@@ -37,11 +37,11 @@ data class User(
 
         var workStatus: WorkStatus,
 
-        var workStatusUpdateDate: LocalDateTime,
+        var workStatusUpdateDate: OffsetDateTime,
 
-        val createDate: LocalDateTime,
+        val createDate: OffsetDateTime,
 
-        var updateDate: LocalDateTime
+        var updateDate: OffsetDateTime
 
 ) : Persistable<String> {
 

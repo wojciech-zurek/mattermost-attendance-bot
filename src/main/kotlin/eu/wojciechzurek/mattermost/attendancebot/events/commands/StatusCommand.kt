@@ -11,9 +11,7 @@ import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
 import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
+import java.time.*
 
 @Component
 class StatusCommand(
@@ -27,37 +25,48 @@ class StatusCommand(
 
     override fun getHelp(): String = " !status - information about your work status"
 
-    override fun onEvent(event: Event, message: String) = getUserInfo(event)
+    override fun onEvent(event: Event, message: String) = getUserInfo(event, message)
 
-    private fun getUserInfo(event: Event) {
+    private fun getUserInfo(event: Event, message: String) {
         val userId = event.data.post!!.userId!!
-        userRepository
-                .findById(userId).zipWith(attendanceRepository.findLatestByMMUserId(userId))
+        val userName: String = (if (message.isBlank()) event.data.senderName!! else message).removePrefix("@")
+
+        val now = OffsetDateTime.now()
+
+        mattermostService
+                .userName(userName)
+                .flatMap {
+                    userRepository
+                            .findById(it.id).zipWith(attendanceRepository.findLatestByMMUserId(it.id))
+                }
                 .map {
-                    val message = when (it.t1.workStatus) {
+                    val workTimeInSec = configMap.getOrDefault("workTimeInSec", "0").toLong()
+                    val extraMessage = when (it.t1.workStatus) {
                         WorkStatus.ONLINE -> {
-                            "Online time: ${(System.currentTimeMillis() - it.t1.workStatusUpdateDate.milli()).toTime()}\n" +
+                            "Online time: ${Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()}\n" +
                                     "Work start time: ${it.t2.signInDate.toStringDateTime()}\n" +
-                                    "Today total away time: ${it.t2.awayTime.toTime()}\n"
+                                    "Today total away time: ${it.t2.awayTime.toTime()}\n" +
+                                    "Estimated work stop time: ${it.t2.signInDate.plusSeconds(workTimeInSec + it.t2.awayTime).toStringDateTime()}\n"
 
                         }
                         WorkStatus.AWAY -> {
-                            val away = System.currentTimeMillis() - it.t1.workStatusUpdateDate.milli()
+                            val away = Duration.between(it.t1.workStatusUpdateDate, now).seconds
                             "Away time: ${away.toTime()}\n" +
                                     "Today total away time: ${(it.t2.awayTime + away).toTime()}\n" +
-                                    "Work start time: ${it.t2.signInDate.toStringDateTime()}\n"
+                                    "Work start time: ${it.t2.signInDate.toStringDateTime()}\n" +
+                                    "Estimated work stop time: ${it.t2.signInDate.plusSeconds(workTimeInSec + it.t2.awayTime + away).toStringDateTime()}\n"
 
                         }
-                        WorkStatus.OFFLINE -> "\n"
+                        WorkStatus.OFFLINE -> "Offline time: ${Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()}\n"
                     }
 
-                    EphemeralPost(it.t1.id,
+                    EphemeralPost(userId,
                             Post(
                                     //  userId = it.data.post!!.userId,
                                     channelId = event.data.post.channelId,
                                     message = "${event.data.senderName}\n" +
                                             "Work status: ${it.t1.workStatus} (${it.t1.workStatusUpdateDate.toStringDateTime()})\n"
-                                            + message
+                                            + extraMessage
                             )
                     )
                 }

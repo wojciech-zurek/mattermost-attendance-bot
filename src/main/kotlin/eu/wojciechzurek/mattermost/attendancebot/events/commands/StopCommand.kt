@@ -12,8 +12,10 @@ import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.OffsetDateTime
 
 @Component
 class StopCommand(
@@ -21,8 +23,6 @@ class StopCommand(
         private val attendanceRepository: AttendanceRepository
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
-
-    private val workTimeInMillis = 28800000
 
     override fun getPrefix(): String = "!stop"
 
@@ -34,11 +34,13 @@ class StopCommand(
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
 
+        val now = OffsetDateTime.now()
+
         userRepository
                 .findById(userId)
                 .filter { it.workStatus == WorkStatus.ONLINE }
                 .map {
-                    val now = LocalDateTime.now()
+
                     it.copy(
                             workStatus = WorkStatus.OFFLINE,
                             workStatusUpdateDate = now,
@@ -48,10 +50,9 @@ class StopCommand(
                 .flatMap { userRepository.save(it) }
                 .flatMap { attendanceRepository.findByMMUserIdAndWorkDate(it.userId, LocalDate.now()) }
                 .map {
-                    val current = System.currentTimeMillis()
                     it.copy(
-                            signOutDate = current,
-                            workTime = current - it.signInDate
+                            signOutDate = now,
+                            workTime = Duration.between(it.signInDate, now).seconds
                     )
                 }
                 .flatMap { attendanceRepository.save(it) }
@@ -60,7 +61,7 @@ class StopCommand(
                             channelId = channelId,
                             message = "${event.data.senderName}\n" +
                                     "You are OFFLINE right now :sunglasses: \n" +
-                                    "Work stop time: " + it.signOutDate.toStringDateTime() + "\n" +
+                                    "Work stop time: " + it.signOutDate?.toStringDateTime() + "\n" +
                                     "Today work time : " + it.workTime.toTime() + "\n" +
                                     "Today away time : " + it.awayTime.toTime() + "\n" +
                                     "Thanks :smiley: You are after work. Have a nice day.\n"
