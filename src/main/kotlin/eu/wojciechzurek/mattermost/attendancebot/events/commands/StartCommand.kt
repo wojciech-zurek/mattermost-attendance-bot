@@ -7,6 +7,7 @@ import eu.wojciechzurek.mattermost.attendancebot.domain.Attendance
 import eu.wojciechzurek.mattermost.attendancebot.domain.User
 import eu.wojciechzurek.mattermost.attendancebot.domain.UserMMStatus
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
@@ -27,7 +28,9 @@ class StartCommand(
 
     override fun getPrefix(): String = "!start"
 
-    override fun getHelp(): String = " !start - start your new working day. You can use this command only once per day."
+    override fun getHelp(): String = "!start - start your new working day. You can use this command only once per day."
+
+    override fun getCommandType(): CommandType = CommandType.MAIN
 
     override fun onEvent(event: Event, message: String) = start(event)
 
@@ -47,7 +50,7 @@ class StartCommand(
 
                                 User(it.id, UUID.randomUUID(), it.userName, it.email,
                                         channelId, channelName!!, channelDisplayName!!, UserMMStatus.UNKNOWN,
-                                        WorkStatus.ONLINE, now, now, now)
+                                        WorkStatus.ONLINE, now, "", now, now)
                                         .setNew()
                             }
                             .flatMap { userRepository.save(it) }
@@ -84,6 +87,7 @@ class StartCommand(
 
                                 user.workStatus = WorkStatus.ONLINE
                                 user.workStatusUpdateDate = now
+                                user.absenceReason = ""
                                 user.updateDate = now
                                 user.setOld()
 
@@ -92,7 +96,7 @@ class StartCommand(
                                         .map { Attendance(null, UUID.randomUUID(), it.userId, signInDate = now) }
                                         .flatMap { att -> attendanceRepository.save(att) }
                                         .map { att ->
-                                            val workTimeInSec = configMap.getOrDefault("workTimeInSec", "0").toLong()
+                                            val workTimeInSec = configService.getOrDefault("workTimeInSec", "0").toLong()
                                             Post(
                                                     channelId = channelId,
                                                     message = "${event.data.senderName}\n" +

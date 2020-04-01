@@ -3,6 +3,7 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDate
@@ -22,7 +23,9 @@ class LastCommand(
 
     override fun getPrefix(): String = "!last"
 
-    override fun getHelp(): String = " !last [number] - show stats for working days. Default 10 days."
+    override fun getHelp(): String = "!last [number] - show stats for working days. Default 10 days."
+
+    override fun getCommandType(): CommandType = CommandType.STATS
 
     override fun onEvent(event: Event, message: String) = last(event, message)
 
@@ -38,7 +41,7 @@ class LastCommand(
                     messageSource.getMessage("theme.last.row", arrayOf(
                             it.workDate.toStringDate(),
                             it.signInDate.toStringDateTime(),
-                            it.signOutDate?.toStringDateTime(),
+                            it.signOutDate?.toStringDateTime() ?: "",
                             it.workTime.toTime(),
                             it.awayTime.toTime()
                     ), Locale.getDefault())

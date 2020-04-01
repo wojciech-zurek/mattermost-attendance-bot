@@ -3,6 +3,7 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
 import org.springframework.stereotype.Component
@@ -14,7 +15,9 @@ class NowCommand : CommandSubscriber() {
 
     override fun getPrefix(): String = "!now"
 
-    override fun getHelp(): String = " !now - current date time"
+    override fun getHelp(): String = "!now - current date time"
+
+    override fun getCommandType(): CommandType = CommandType.OTHER
 
     override fun onEvent(event: Event, message: String) = now(event)
 
@@ -26,8 +29,8 @@ class NowCommand : CommandSubscriber() {
                 //  userId = it.data.post!!.userId,
                 channelId = event.data.post.channelId,
                 message = "${event.data.senderName}\n" +
-                        "date: ${now.toStringDateTime()}\n" +
-                        "timestamp: $now"
+                        "Date: ${now.toStringDateTime()}\n" +
+                        "Timestamp: $now"
         )
 
         val ephemeralPost = EphemeralPost(userId, post)

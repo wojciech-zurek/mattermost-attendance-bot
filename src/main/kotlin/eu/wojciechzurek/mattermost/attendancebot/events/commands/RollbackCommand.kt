@@ -8,44 +8,46 @@ import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
-import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
-import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 import reactor.kotlin.core.publisher.switchIfEmpty
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 @Component
-class StopCommand(
+class RollbackCommand(
         private val userRepository: UserRepository,
         private val attendanceRepository: AttendanceRepository
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!stop"
+    override fun getPrefix(): String = "!rollback"
 
-    override fun getHelp(): String = "!stop - stop your working day. You can use this command only once per day."
+    override fun getHelp(): String = "!rollback [username] - rollback user offline status to online"
 
-    override fun getCommandType(): CommandType = CommandType.MAIN
+    override fun getCommandType(): CommandType = CommandType.USER_MANAGEMENT
 
-    override fun onEvent(event: Event, message: String) = stop(event)
+    override fun onEvent(event: Event, message: String) = rollback(event, message.removePrefix("@"))
 
-    private fun stop(event: Event) {
+    private fun rollback(event: Event, message: String) {
+
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
 
         val now = OffsetDateTime.now()
 
-        userRepository
-                .findById(userId)
-                .filter { it.workStatus == WorkStatus.ONLINE }
-                .map {
-
+        mattermostService
+                .user(userId)
+                .filter { it.roles.contains("system_admin") }
+                .flatMap { mattermostService.userName(message) }
+                .flatMap {
+                    userRepository.findById(it.id)
+                }.filter {
+                    it.workStatus == WorkStatus.OFFLINE
+                }.map {
                     it.copy(
-                            workStatus = WorkStatus.OFFLINE,
+                            workStatus = WorkStatus.ONLINE,
                             workStatusUpdateDate = now,
                             absenceReason = "",
                             updateDate = now
@@ -55,28 +57,20 @@ class StopCommand(
                 .flatMap { attendanceRepository.findByMMUserIdAndWorkDate(it.userId, LocalDate.now()) }
                 .map {
                     it.copy(
-                            signOutDate = now,
-                            workTime = Duration.between(it.signInDate, now).seconds
+                            signOutDate = null,
+                            workTime = 0L
                     )
                 }
                 .flatMap { attendanceRepository.save(it) }
                 .map {
                     Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "You are OFFLINE right now :sunglasses: \n" +
-                                    "Work stop time: " + it.signOutDate?.toStringDateTime() + "\n" +
-                                    "Today work time : " + it.workTime.toTime() + "\n" +
-                                    "Today away time : " + it.awayTime.toTime() + "\n" +
-                                    "Thanks :smiley: You are after work. Have a nice day.\n"
-                    )
+                            message = "User status set to ONLINE\n")
                 }
                 .switchIfEmpty {
                     Mono.just(Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "Sorry but you are not ONLINE right now :thinking: \n" +
-                                    "Start your work with !start or back to work with !online command.\n"
+                            message = "Sorry but user status is not OFFLINE\n"
                     ))
                 }
                 .map { EphemeralPost(userId, it) }

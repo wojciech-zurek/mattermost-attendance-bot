@@ -3,6 +3,7 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
@@ -16,7 +17,9 @@ class WhoCommand(private val userRepository: UserRepository) : CommandSubscriber
 
     override fun getPrefix(): String = "!who "
 
-    override fun getHelp(): String = " !who [username] - information about user"
+    override fun getHelp(): String = "!who [username] - information about user"
+
+    override fun getCommandType(): CommandType = CommandType.INFO
 
     override fun onEvent(event: Event, message: String) = getUserInfo(event, message.removePrefix("@"))
 
@@ -30,12 +33,11 @@ class WhoCommand(private val userRepository: UserRepository) : CommandSubscriber
                 .map {
                     EphemeralPost(userId, Post(
                             channelId = event.data.post.channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "user name: ${it.t1.userName}\n" +
-                                    "email: ${it.t1.email}\n" +
-                                    "roles: ${it.t1.roles}\n" +
-                                    "create at: ${it.t1.createAt.toStringDateTime()}\n" +
-                                    "work status: ${it.t2.workStatus} (${it.t2.workStatusUpdateDate.toStringDateTime()})\n"
+                            message = "User name: ${it.t1.userName}\n" +
+                                    "Email: ${it.t1.email}\n" +
+                                    "Roles: ${it.t1.roles}\n" +
+                                    "Create at: ${it.t1.createAt.toStringDateTime()}\n" +
+                                    "Work status: ${it.t2.workStatus} ${it.t2.getFormattedAbsenceReason()} (${it.t2.workStatusUpdateDate.toStringDateTime()})\n"
                     ))
                 }.map { mattermostService.ephemeralPost(it) }
                 .subscribe()

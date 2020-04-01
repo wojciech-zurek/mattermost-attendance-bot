@@ -8,11 +8,16 @@ services:
     environment:
       TZ: "GMT+1"
       PGTZ: 'GMT+1'
-      POSTGRES_DB: "mattermost-attendance-bot-test"
+      POSTGRES_DB: "mattermost-attendance-bot"
       POSTGRES_USER: "sa"
       POSTGRES_PASSWORD: "123456"
 
   mattermost-attendance-bot:
-    image: eu.wojciechzurek/mattermost-attendance-bot:0.0.1
-    ports:
-      - "9090:9090"
+    image: wojciechzurek/mattermost-attendance-bot:0.0.1
+    environment:
+      SPRING_R2DBC_URL: "r2dbc:postgresql://postgres:5432/mattermost-attendance-bot"
+      SPRING_R2DBC_USERNAME: "sa"
+      SPRING_R2DBC_PASSWORD: "123456"
+      SPRING_FLYWAY_URL: "jdbc:postgresql://postgres:5432/mattermost-attendance-bot"
+      SPRING_FLYWAY_USER: "sa"
+      SPRING_FLYWAY_PASSWORD: "123456"

@@ -2,31 +2,32 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.events.PostedEventSubscriber
-import eu.wojciechzurek.mattermost.attendancebot.repository.ConfigRepository
+import eu.wojciechzurek.mattermost.attendancebot.services.ConfigService
 import eu.wojciechzurek.mattermost.attendancebot.services.MattermostService
-import org.springframework.beans.factory.InitializingBean
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.context.event.ApplicationReadyEvent
+import org.springframework.context.ApplicationListener
 
-abstract class CommandSubscriber : PostedEventSubscriber(), InitializingBean {
+abstract class CommandSubscriber : PostedEventSubscriber(), ApplicationListener<ApplicationReadyEvent> {
 
     @Autowired
     protected lateinit var mattermostService: MattermostService
 
     @Autowired
-    private lateinit var configRepository: ConfigRepository
-
-    protected val configMap = mutableMapOf<String, String>()
+    protected lateinit var configService: ConfigService
 
     abstract fun getPrefix(): String
 
     abstract fun getHelp(): String
 
+    abstract fun getCommandType(): CommandType
+
     abstract fun onEvent(event: Event, message: String)
 
-    override fun afterPropertiesSet() {
-        botService.setHelp(getHelp())
-        reloadConfig()
+    override fun onApplicationEvent(event: ApplicationReadyEvent) {
+        botService.setHelp(getCommandType(), getHelp())
     }
 
     override fun filter(event: Event): Boolean {
@@ -51,11 +52,5 @@ abstract class CommandSubscriber : PostedEventSubscriber(), InitializingBean {
         )
 
         mattermostService.post(post)
-    }
-
-    protected fun reloadConfig(){
-        configRepository.findAll().subscribe {
-            configMap[it.key] = it.value
-        }
     }
 }

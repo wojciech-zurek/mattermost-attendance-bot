@@ -5,6 +5,7 @@ import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.domain.StatusType
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AbsencesRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
@@ -29,7 +30,9 @@ class OnlineCommand(
 
     override fun getPrefix(): String = "!online"
 
-    override fun getHelp(): String = " !online - set online status (back from away status)"
+    override fun getHelp(): String = "!online - set online status (back from away status)"
+
+    override fun getCommandType(): CommandType = CommandType.MAIN
 
     override fun onEvent(event: Event, message: String) = online(event)
 
@@ -45,6 +48,7 @@ class OnlineCommand(
                     it.copy(
                             workStatus = WorkStatus.ONLINE,
                             workStatusUpdateDate = now,
+                            absenceReason = "",
                             updateDate = now
                     )
                 }

@@ -5,6 +5,7 @@ import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.domain.Absence
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AbsencesRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
@@ -30,7 +31,9 @@ class AwayCommand(
 
     override fun getPrefix(): String = "!away"
 
-    override fun getHelp(): String = " !away [reason] - away from computer/home. Optional reason."
+    override fun getHelp(): String = "!away [reason] - away from computer/home. Optional reason."
+
+    override fun getCommandType(): CommandType = CommandType.MAIN
 
     override fun onEvent(event: Event, message: String) = away(event, message)
 
@@ -48,6 +51,7 @@ class AwayCommand(
                     it.copy(
                             workStatus = WorkStatus.AWAY,
                             workStatusUpdateDate = now,
+                            absenceReason = message,
                             updateDate = now
                     )
                 }
@@ -69,6 +73,7 @@ class AwayCommand(
                             channelId = channelId,
                             message = "${event.data.senderName}\n" +
                                     "You are AWAY right now :smiling_imp: \n" +
+                                    "Away reason: ${it.reason}\n" +
                                     "Away start time: " + it.awayTime.toStringDateTime() + "\n" +
                                     "Remember to resume your work with !online command.\n" +
                                     "Thanks :smiley: See you soon as possible.\n"

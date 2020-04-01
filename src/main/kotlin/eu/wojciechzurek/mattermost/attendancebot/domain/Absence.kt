@@ -26,5 +26,7 @@ data class Absence(
 
         var onlineTime: OffsetDateTime? = null,
 
-        var onlineType: StatusType? = null
+        var onlineType: StatusType? = null,
+
+        val absenceType: AbsenceType = AbsenceType.PRIVATE
 )

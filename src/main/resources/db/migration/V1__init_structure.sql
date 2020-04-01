@@ -12,6 +12,7 @@ CREATE TABLE mm_users
     mm_status               VARCHAR(16)                            NOT NULL,
     work_status             VARCHAR(16)                            NOT NULL,
     work_status_update_date TIMESTAMP WITH TIME ZONE               NOT NULL,
+    absence_reason          VARCHAR(128)                           NOT NULL,
     create_date             TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     update_date             TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL,
     PRIMARY KEY (mm_user_id)
@@ -49,6 +50,7 @@ CREATE TABLE IF NOT EXISTS absences
     away_type     VARCHAR(16)              NOT NULL,
     online_time   TIMESTAMP WITH TIME ZONE,
     online_type   VARCHAR(16),
+    absence_type  VARCHAR(16)              NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -59,10 +61,12 @@ CREATE INDEX ON absences (mm_user_id);
 
 CREATE TABLE IF NOT EXISTS configs
 (
-    key   VARCHAR(32) NOT NULL,
-    value TEXT        NOT NULL,
+    key          VARCHAR(32)              NOT NULL,
+    value        TEXT                     NOT NULL,
+    mm_user_name VARCHAR(256)             NOT NULL,
+    update_date  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     PRIMARY KEY (key)
 );
 
-INSERT INTO configs (key, value)
-VALUES ('workTimeInSec', '28800');
+INSERT INTO configs (key, value, mm_user_name)
+VALUES ('workTimeInSec', '28800', 'default');

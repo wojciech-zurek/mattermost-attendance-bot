@@ -39,6 +39,8 @@ data class User(
 
         var workStatusUpdateDate: OffsetDateTime,
 
+        var absenceReason: String = "",
+
         val createDate: OffsetDateTime,
 
         var updateDate: OffsetDateTime
@@ -61,4 +63,12 @@ data class User(
     }
 
     override fun getId(): String = userId
+
+
+    fun getFormattedAbsenceReason(): String {
+        return if (workStatus == WorkStatus.AWAY) {
+            "(${absenceReason})"
+        } else ""
+    }
+
 }

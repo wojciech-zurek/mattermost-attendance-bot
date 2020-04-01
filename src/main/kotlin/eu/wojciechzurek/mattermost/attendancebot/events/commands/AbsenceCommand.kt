@@ -3,6 +3,7 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AbsencesRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
@@ -21,7 +22,9 @@ class AbsenceCommand(private val messageSource: MessageSource,
 
     override fun getPrefix(): String = "!absence"
 
-    override fun getHelp(): String = " !absence [number] - show absences for working days. Default 10 days."
+    override fun getHelp(): String = "!absence [number] - show absences for working days. Default 10 days."
+
+    override fun getCommandType(): CommandType = CommandType.STATS
 
     override fun onEvent(event: Event, message: String) = last(event, message)
 

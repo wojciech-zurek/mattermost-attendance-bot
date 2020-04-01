@@ -4,6 +4,7 @@ import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
@@ -19,7 +20,9 @@ class WhoamiCommand(
 
     override fun getPrefix(): String = "!whoami"
 
-    override fun getHelp(): String = " !whoami - information about your account"
+    override fun getHelp(): String = "!whoami - information about your account"
+
+    override fun getCommandType(): CommandType = CommandType.INFO
 
     override fun onEvent(event: Event, message: String) = getUserInfo(event)
 
@@ -33,12 +36,12 @@ class WhoamiCommand(
                             Post(
                                     //  userId = it.data.post!!.userId,
                                     channelId = event.data.post.channelId,
-                                    message = "${event.data.senderName}\n" +
-                                            "id: ${it.t1.id}\n" +
-                                            "email: ${it.t1.email}\n" +
-                                            "roles: ${it.t1.roles}\n" +
-                                            "account create at: ${it.t1.createAt.toStringDateTime()}\n" +
-                                            "work status: ${it.t2.workStatus} (${it.t2.workStatusUpdateDate.toStringDateTime()})\n"
+                                    message = "User name: ${event.data.senderName}\n" +
+                                            "Id: ${it.t1.id}\n" +
+                                            "Email: ${it.t1.email}\n" +
+                                            "Roles: ${it.t1.roles}\n" +
+                                            "Account create at: ${it.t1.createAt.toStringDateTime()}\n" +
+                                            "Work status: ${it.t2.workStatus} (${it.t2.workStatusUpdateDate.toStringDateTime()})\n"
                             )
                     )
                 }

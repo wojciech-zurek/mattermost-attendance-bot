@@ -8,36 +8,43 @@ import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
 import org.springframework.context.MessageSource
 import org.springframework.stereotype.Component
-import reactor.core.publisher.Mono
 import java.util.*
 import java.util.stream.Collectors
 
 @Component
-class MembersCommand(
+class ConfigGetCommand(
         private val messageSource: MessageSource
 ) : CommandSubscriber() {
-
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!members"
+    override fun getPrefix(): String = "!config get"
 
-    override fun getHelp(): String = "!members - show all members in current channel"
+    override fun getHelp(): String = "!config get [keyname] [keyname] - show configuration. Optional keys name."
 
-    override fun getCommandType(): CommandType = CommandType.STATS
+    override fun getCommandType(): CommandType = CommandType.CONFIG
 
-    override fun onEvent(event: Event, message: String) = show(event)
+    override fun onEvent(event: Event, message: String) = get(event, message)
 
-    private fun show(event: Event) {
+    private fun get(event: Event, message: String) {
+
         val userId = event.data.post!!.userId!!
+
+        val keys = message.split(" ")
+
         mattermostService
-                .channelMembers(event.data.post.channelId)
-                .flatMap { Mono.just(it).zipWith(mattermostService.user(it.userId)) }
+                .user(userId)
+                .filter { it.roles.contains("system_admin") }
+                .flatMapMany { (if (message.isBlank()) configService.findAll() else configService.findAllById(keys)) }
                 .map {
-                    messageSource.getMessage("theme.channel-members.row", arrayOf(mattermostService.getUserImageEndpoint(it.t1.userId), it.t2.userName, it.t2.email,
-                            it.t2.roles, it.t1.msgCount, it.t1.lastViewedAt.toStringDateTime()), Locale.getDefault())
+                    messageSource.getMessage("theme.config.row", arrayOf(
+                            it.key,
+                            it.value,
+                            it.updateDate.toStringDateTime(),
+                            it.userName
+                    ), Locale.getDefault())
                 }
                 .collect(Collectors.joining())
-                .map { messageSource.getMessage("theme.channel-members", arrayOf(it), Locale.getDefault()) }
+                .map { messageSource.getMessage("theme.config", arrayOf(it), Locale.getDefault()) }
                 .map {
                     EphemeralPost(
                             userId, Post(

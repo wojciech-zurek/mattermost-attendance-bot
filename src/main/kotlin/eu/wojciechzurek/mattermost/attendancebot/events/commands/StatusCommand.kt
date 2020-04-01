@@ -4,6 +4,7 @@ import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.milli
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
@@ -23,7 +24,9 @@ class StatusCommand(
 
     override fun getPrefix(): String = "!status"
 
-    override fun getHelp(): String = " !status - information about your work status"
+    override fun getHelp(): String = "!status [username] - information about work status. Optional user name."
+
+    override fun getCommandType(): CommandType = CommandType.INFO
 
     override fun onEvent(event: Event, message: String) = getUserInfo(event, message)
 
@@ -40,7 +43,7 @@ class StatusCommand(
                             .findById(it.id).zipWith(attendanceRepository.findLatestByMMUserId(it.id))
                 }
                 .map {
-                    val workTimeInSec = configMap.getOrDefault("workTimeInSec", "0").toLong()
+                    val workTimeInSec = configService.getOrDefault("workTimeInSec", "0").toLong()
                     val extraMessage = when (it.t1.workStatus) {
                         WorkStatus.ONLINE -> {
                             "Online time: ${Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()}\n" +
@@ -51,7 +54,8 @@ class StatusCommand(
                         }
                         WorkStatus.AWAY -> {
                             val away = Duration.between(it.t1.workStatusUpdateDate, now).seconds
-                            "Away time: ${away.toTime()}\n" +
+                            "Away reason: ${it.t1.absenceReason}\n" +
+                                    "Away time: ${away.toTime()}\n" +
                                     "Today total away time: ${(it.t2.awayTime + away).toTime()}\n" +
                                     "Work start time: ${it.t2.signInDate.toStringDateTime()}\n" +
                                     "Estimated work stop time: ${it.t2.signInDate.plusSeconds(workTimeInSec + it.t2.awayTime + away).toStringDateTime()}\n"
@@ -64,7 +68,7 @@ class StatusCommand(
                             Post(
                                     //  userId = it.data.post!!.userId,
                                     channelId = event.data.post.channelId,
-                                    message = "${event.data.senderName}\n" +
+                                    message = "User name: $userName\n" +
                                             "Work status: ${it.t1.workStatus} (${it.t1.workStatusUpdateDate.toStringDateTime()})\n"
                                             + extraMessage
                             )

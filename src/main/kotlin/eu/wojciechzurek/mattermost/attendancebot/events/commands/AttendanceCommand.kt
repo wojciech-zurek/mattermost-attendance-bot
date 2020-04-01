@@ -3,6 +3,8 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
+import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
@@ -22,7 +24,9 @@ class AttendanceCommand(
 
     override fun getPrefix(): String = "!attendance"
 
-    override fun getHelp(): String = " !attendance - show all employees status in current channel"
+    override fun getHelp(): String = "!attendance - show all employees status in current channel"
+
+    override fun getCommandType(): CommandType = CommandType.STATS
 
     override fun onEvent(event: Event, message: String) = attendance(event)
 
@@ -33,7 +37,7 @@ class AttendanceCommand(
                 .flatMap { mattermostService.user(it.userId).zipWith(userRepository.findById(it.userId)) }
                 .map {
                     messageSource.getMessage("theme.channel-attendance.row", arrayOf(mattermostService.getUserImageEndpoint(it.t1.id), it.t2.userName, it.t1.email,
-                            it.t2.workStatus, it.t2.workStatusUpdateDate.toStringDateTime()), Locale.getDefault())
+                            it.t2.workStatus.toString() + " " + it.t2.getFormattedAbsenceReason(), it.t2.workStatusUpdateDate.toStringDateTime()), Locale.getDefault())
                 }
                 .collect(Collectors.joining())
                 .map { messageSource.getMessage("theme.channel-attendance", arrayOf(it), Locale.getDefault()) }
