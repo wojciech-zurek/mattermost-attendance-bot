@@ -12,7 +12,7 @@ import java.time.OffsetDateTime
 @Component
 class ConfigSetCommand(
         private val messageSource: MessageSource
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.config.set"
@@ -30,7 +30,8 @@ class ConfigSetCommand(
 
         val keys = message.split(" ")
         val key = keys[0]
-        val value = keys[1]
+        val value = keys.subList(1, keys.count()).joinToString("") { it.trim() }
+
         mattermostService
                 .user(userId)
                 .filter { it.roles.contains("system_admin") }

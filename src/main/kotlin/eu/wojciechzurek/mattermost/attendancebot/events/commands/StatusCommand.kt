@@ -18,7 +18,7 @@ import java.time.*
 class StatusCommand(
         private val userRepository: UserRepository,
         private val attendanceRepository: AttendanceRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

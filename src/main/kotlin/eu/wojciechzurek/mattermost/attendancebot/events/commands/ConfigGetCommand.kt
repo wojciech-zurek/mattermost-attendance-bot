@@ -14,7 +14,7 @@ import java.util.stream.Collectors
 @Component
 class ConfigGetCommand(
         private val messageSource: MessageSource
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.config.get"

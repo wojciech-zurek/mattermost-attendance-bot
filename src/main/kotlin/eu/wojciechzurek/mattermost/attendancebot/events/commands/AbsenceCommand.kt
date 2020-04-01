@@ -18,7 +18,7 @@ import java.util.stream.Collectors
 class AbsenceCommand(
         private val messageSource: MessageSource,
         private val absencesRepository: AbsencesRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

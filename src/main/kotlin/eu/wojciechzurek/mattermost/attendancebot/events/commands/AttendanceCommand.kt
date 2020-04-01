@@ -18,7 +18,7 @@ import java.util.stream.Collectors
 class AttendanceCommand(
         private val messageSource: MessageSource,
         private val userRepository: UserRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

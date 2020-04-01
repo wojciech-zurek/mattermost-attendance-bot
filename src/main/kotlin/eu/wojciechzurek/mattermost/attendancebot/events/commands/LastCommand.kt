@@ -18,7 +18,7 @@ import java.util.stream.Collectors
 class LastCommand(
         private val messageSource: MessageSource,
         private val attendanceRepository: AttendanceRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.last"

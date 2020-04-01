@@ -25,7 +25,7 @@ class AwayCommand(
         private val attendanceRepository: AttendanceRepository,
         private val absencesRepository: AbsencesRepository
 
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

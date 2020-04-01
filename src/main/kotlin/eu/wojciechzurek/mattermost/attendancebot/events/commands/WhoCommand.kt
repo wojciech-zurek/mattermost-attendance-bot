@@ -11,7 +11,9 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class WhoCommand(private val userRepository: UserRepository) : CommandSubscriber() {
+class WhoCommand(
+        private val userRepository: UserRepository
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

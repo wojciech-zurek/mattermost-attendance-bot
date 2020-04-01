@@ -22,7 +22,7 @@ import java.util.*
 class StartCommand(
         private val userRepository: UserRepository,
         private val attendanceRepository: AttendanceRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

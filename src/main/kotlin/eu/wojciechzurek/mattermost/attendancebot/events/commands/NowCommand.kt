@@ -9,7 +9,7 @@ import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
 import org.springframework.stereotype.Component
 
 @Component
-class NowCommand : CommandSubscriber() {
+class NowCommand : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

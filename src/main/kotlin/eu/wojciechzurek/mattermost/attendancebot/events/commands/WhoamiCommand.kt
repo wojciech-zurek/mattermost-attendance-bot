@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component
 @Component
 class WhoamiCommand(
         private val userRepository: UserRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

@@ -15,7 +15,7 @@ import java.util.stream.Collectors
 @Component
 class MembersCommand(
         private val messageSource: MessageSource
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 

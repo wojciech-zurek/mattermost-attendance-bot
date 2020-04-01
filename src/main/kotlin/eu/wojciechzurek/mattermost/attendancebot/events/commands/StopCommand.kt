@@ -22,7 +22,8 @@ import java.time.OffsetDateTime
 class StopCommand(
         private val userRepository: UserRepository,
         private val attendanceRepository: AttendanceRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
+
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.stop"

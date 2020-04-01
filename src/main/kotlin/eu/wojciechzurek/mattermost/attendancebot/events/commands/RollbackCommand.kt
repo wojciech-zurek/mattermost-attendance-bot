@@ -19,7 +19,7 @@ import java.time.OffsetDateTime
 class RollbackCommand(
         private val userRepository: UserRepository,
         private val attendanceRepository: AttendanceRepository
-) : CommandSubscriber() {
+) : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.rollback"
