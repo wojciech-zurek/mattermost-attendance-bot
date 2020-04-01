@@ -15,13 +15,14 @@ import java.util.*
 import java.util.stream.Collectors
 
 @Component
-class AbsenceCommand(private val messageSource: MessageSource,
-                     private val absencesRepository: AbsencesRepository
+class AbsenceCommand(
+        private val messageSource: MessageSource,
+        private val absencesRepository: AbsencesRepository
 ) : CommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.absence"
+    override fun getName(): String = "command.absence"
 
     override fun getHelp(): String = "[number] - show absences for working days. Default 10 days."
 

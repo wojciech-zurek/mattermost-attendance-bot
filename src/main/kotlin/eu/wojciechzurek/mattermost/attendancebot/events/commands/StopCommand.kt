@@ -25,7 +25,7 @@ class StopCommand(
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.stop"
+    override fun getName(): String = "command.stop"
 
     override fun getHelp(): String = "- stop your working day. You can use this command only once per day."
 

@@ -26,7 +26,7 @@ class StartCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.start"
+    override fun getName(): String = "command.start"
 
     override fun getHelp(): String = "- start your new working day. You can use this command only once per day."
 

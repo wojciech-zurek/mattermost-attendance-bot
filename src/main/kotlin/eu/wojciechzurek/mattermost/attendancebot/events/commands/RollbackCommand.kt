@@ -22,7 +22,7 @@ class RollbackCommand(
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.rollback"
+    override fun getName(): String = "command.rollback"
 
     override fun getHelp(): String = "[username] - rollback user offline status to online"
 

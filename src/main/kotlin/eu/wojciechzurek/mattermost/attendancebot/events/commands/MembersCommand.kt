@@ -19,7 +19,7 @@ class MembersCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.members"
+    override fun getName(): String = "command.members"
 
     override fun getHelp(): String = "- show all members in current channel"
 

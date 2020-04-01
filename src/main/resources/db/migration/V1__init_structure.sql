@@ -69,19 +69,99 @@ CREATE TABLE IF NOT EXISTS configs
 );
 
 INSERT INTO configs (key, value, mm_user_name) VALUES ('work.time.in.sec', '28800', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.absence', '!absence', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.attendance', '!attendance', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.away', '!away', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.config.get', '!config get', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.config.set', '!config set', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.help', '!help', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.last', '!last', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.members', '!members', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.now', '!now', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.online', '!online', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.rollback', '!rollback', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.start', '!start', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.status', '!status', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.stop', '!stop', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.whoami', '!whoami', 'default');
-INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.who', '!who', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.absence.prefix', '!absence', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.absence.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.absence.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.absence.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.absence.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.attendance.prefix', '!attendance', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.attendance.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.attendance.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.attendance.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.attendance.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.away.prefix', '!away', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.away.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.away.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.away.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.away.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.get.prefix', '!config get', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.get.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.get.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.get.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.get.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.set.prefix', '!config set', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.set.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.set.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.set.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.config.set.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.help.prefix', '!help', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.help.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.help.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.help.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.help.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.last.prefix', '!last', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.last.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.last.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.last.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.last.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.members.prefix', '!members', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.members.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.members.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.members.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.members.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.now.prefix', '!now', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.now.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.now.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.now.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.now.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.online.prefix', '!online', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.online.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.online.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.online.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.online.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.rollback.prefix', '!rollback', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.rollback.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.rollback.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.rollback.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.rollback.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.start.prefix', '!start', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.start.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.start.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.start.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.start.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.status.prefix', '!status', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.status.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.status.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.status.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.status.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.stop.prefix', '!stop', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.stop.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.stop.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.stop.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.stop.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.whoami.prefix', '!whoami', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.whoami.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.whoami.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.whoami.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.whoami.block.channel', '', 'default');
+
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.who.prefix', '!who', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.who.allow.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.who.allow.channel', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.who.block.user', '', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.who.block.channel', '', 'default');

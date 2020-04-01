@@ -19,13 +19,17 @@ abstract class CommandSubscriber : PostedEventSubscriber(), ApplicationListener<
     @Autowired
     protected lateinit var configService: ConfigService
 
-    abstract fun getPrefix(): String
+    private val prefix = ".prefix"
+
+    abstract fun getName(): String
 
     abstract fun getHelp(): String
 
     abstract fun getCommandType(): CommandType
 
     abstract fun onEvent(event: Event, message: String)
+
+    private fun getPrefix(): String = getName() + prefix
 
     override fun onApplicationEvent(event: ConfigReloadedEvent) {
         botService.setHelp(getCommandType(), configService.get(getPrefix()) + " " + getHelp())

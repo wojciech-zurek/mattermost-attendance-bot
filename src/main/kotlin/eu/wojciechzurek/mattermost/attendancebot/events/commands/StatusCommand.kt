@@ -22,7 +22,7 @@ class StatusCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.status"
+    override fun getName(): String = "command.status"
 
     override fun getHelp(): String = "[username] - information about work status. Optional user name."
 

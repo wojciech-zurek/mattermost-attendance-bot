@@ -1,12 +1,14 @@
-//package eu.wojciechzurek.mattermost.attendancebot.events.commands
-//
-//import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
-//
-//abstract class AccessCommandSubscriber : CommandSubscriber() {
-//
-//    private val allowedChannel = listOf<String>()
-//    private val allowedUserName = listOf<String>()
-//
+package eu.wojciechzurek.mattermost.attendancebot.events.commands
+
+import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
+
+abstract class AccessCommandSubscriber : CommandSubscriber() {
+
+    private val allowUser = ".allow.user"
+    private val allowChannel = ".allow.channel"
+    private val blockUser = ".block.user"
+    private val blockChannel = ".block.channel"
+
 //    override fun filter(event: Event): Boolean {
 //
 //        event.data.userId
@@ -20,9 +22,9 @@
 //                && super.filter(event)
 //    }
 //
-//    private fun isAllowedChannel(id: String, name: String): Boolean = allowedChannel.contains(id) || allowedChannel.contains(name)
+//    private fun isAllowedChannel(id: String, name: String): Boolean = allowedChannel.isEmpty() || allowedChannel.contains(id) || allowedChannel.contains(name)
 //
 //    private fun isAllowedUserName(name: String): Boolean = allowedUserName.contains(name)
 //
 //    private fun mm() = mattermostService.user().
-//}
+}

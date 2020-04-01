@@ -28,7 +28,7 @@ class OnlineCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "command.prefix.online"
+    override fun getName(): String = "command.online"
 
     override fun getHelp(): String = "- set online status (back from away status)"
 

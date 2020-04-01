@@ -27,6 +27,8 @@ class ConfigServiceImpl(
     override fun findAll(): Flux<Config> = configRepository.findAll()
     override fun findById(key: String): Mono<Config> = configRepository.findById(key)
     override fun findAllById(keys: List<String>): Flux<Config> = configRepository.findAllById(keys)
+    override fun findByPartialKey(key: String): Flux<Config> = configRepository.findByPartialKey(key)
+
     override fun save(config: Config): Mono<Config> = configRepository
             .save(config)
             .map {

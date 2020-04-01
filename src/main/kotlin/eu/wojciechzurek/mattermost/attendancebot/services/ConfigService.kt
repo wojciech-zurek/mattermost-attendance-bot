@@ -11,4 +11,5 @@ interface ConfigService {
     fun save(config: Config): Mono<Config>
     fun findAllById(keys: List<String>): Flux<Config>
     fun get(key: String): String
+    fun findByPartialKey(key: String): Flux<Config>
 }
