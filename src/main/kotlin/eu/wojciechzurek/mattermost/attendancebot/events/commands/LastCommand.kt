@@ -21,9 +21,9 @@ class LastCommand(
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!last"
+    override fun getPrefix(): String = "command.prefix.last"
 
-    override fun getHelp(): String = "!last [number] - show stats for working days. Default 10 days."
+    override fun getHelp(): String = "[number] - show stats for working days. Default 10 days."
 
     override fun getCommandType(): CommandType = CommandType.STATS
 

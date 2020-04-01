@@ -13,9 +13,9 @@ class NowCommand : CommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!now"
+    override fun getPrefix(): String = "command.prefix.now"
 
-    override fun getHelp(): String = "!now - current date time"
+    override fun getHelp(): String = "- current date time"
 
     override fun getCommandType(): CommandType = CommandType.OTHER
 

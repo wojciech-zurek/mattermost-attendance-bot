@@ -26,9 +26,9 @@ class StartCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!start"
+    override fun getPrefix(): String = "command.prefix.start"
 
-    override fun getHelp(): String = "!start - start your new working day. You can use this command only once per day."
+    override fun getHelp(): String = "- start your new working day. You can use this command only once per day."
 
     override fun getCommandType(): CommandType = CommandType.MAIN
 
@@ -96,7 +96,7 @@ class StartCommand(
                                         .map { Attendance(null, UUID.randomUUID(), it.userId, signInDate = now) }
                                         .flatMap { att -> attendanceRepository.save(att) }
                                         .map { att ->
-                                            val workTimeInSec = configService.getOrDefault("workTimeInSec", "0").toLong()
+                                            val workTimeInSec = configService.get("work.time.in.sec").toLong()
                                             Post(
                                                     channelId = channelId,
                                                     message = "${event.data.senderName}\n" +

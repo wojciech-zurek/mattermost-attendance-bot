@@ -22,9 +22,9 @@ class AttendanceCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!attendance"
+    override fun getPrefix(): String = "command.prefix.attendance"
 
-    override fun getHelp(): String = "!attendance - show all employees status in current channel"
+    override fun getHelp(): String = "- show all employees status in current channel"
 
     override fun getCommandType(): CommandType = CommandType.STATS
 

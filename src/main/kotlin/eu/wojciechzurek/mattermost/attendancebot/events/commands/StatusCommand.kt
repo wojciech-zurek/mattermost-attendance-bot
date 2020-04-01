@@ -22,9 +22,9 @@ class StatusCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!status"
+    override fun getPrefix(): String = "command.prefix.status"
 
-    override fun getHelp(): String = "!status [username] - information about work status. Optional user name."
+    override fun getHelp(): String = "[username] - information about work status. Optional user name."
 
     override fun getCommandType(): CommandType = CommandType.INFO
 
@@ -43,7 +43,7 @@ class StatusCommand(
                             .findById(it.id).zipWith(attendanceRepository.findLatestByMMUserId(it.id))
                 }
                 .map {
-                    val workTimeInSec = configService.getOrDefault("workTimeInSec", "0").toLong()
+                    val workTimeInSec = configService.get("work.time.in.sec").toLong()
                     val extraMessage = when (it.t1.workStatus) {
                         WorkStatus.ONLINE -> {
                             "Online time: ${Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()}\n" +

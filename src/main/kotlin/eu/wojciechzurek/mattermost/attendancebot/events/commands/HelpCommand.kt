@@ -14,9 +14,9 @@ class HelpCommand(private val messageSource: MessageSource) : CommandSubscriber(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!help"
+    override fun getPrefix(): String = "command.prefix.help"
 
-    override fun getHelp(): String = "!help - this message"
+    override fun getHelp(): String = "- this message"
 
     override fun getCommandType(): CommandType = CommandType.OTHER
 

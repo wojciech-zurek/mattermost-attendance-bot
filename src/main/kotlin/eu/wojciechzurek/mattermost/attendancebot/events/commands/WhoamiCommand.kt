@@ -18,9 +18,9 @@ class WhoamiCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!whoami"
+    override fun getPrefix(): String = "command.prefix.whoami"
 
-    override fun getHelp(): String = "!whoami - information about your account"
+    override fun getHelp(): String = "- information about your account"
 
     override fun getCommandType(): CommandType = CommandType.INFO
 

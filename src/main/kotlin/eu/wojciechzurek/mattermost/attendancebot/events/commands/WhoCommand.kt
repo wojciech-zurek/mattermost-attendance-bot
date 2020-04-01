@@ -15,9 +15,9 @@ class WhoCommand(private val userRepository: UserRepository) : CommandSubscriber
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!who "
+    override fun getPrefix(): String = "command.prefix.who"
 
-    override fun getHelp(): String = "!who [username] - information about user"
+    override fun getHelp(): String = "[username] - information about user"
 
     override fun getCommandType(): CommandType = CommandType.INFO
 

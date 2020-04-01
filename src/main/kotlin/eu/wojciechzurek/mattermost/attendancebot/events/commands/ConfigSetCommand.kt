@@ -15,9 +15,9 @@ class ConfigSetCommand(
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!config set"
+    override fun getPrefix(): String = "command.prefix.config.set"
 
-    override fun getHelp(): String = "!config set [keyname] [value] - set new configuration value"
+    override fun getHelp(): String = "[keyname] [value] - set new configuration value"
 
     override fun getCommandType(): CommandType = CommandType.CONFIG
 

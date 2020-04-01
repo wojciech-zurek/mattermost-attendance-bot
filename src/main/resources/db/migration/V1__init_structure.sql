@@ -61,12 +61,27 @@ CREATE INDEX ON absences (mm_user_id);
 
 CREATE TABLE IF NOT EXISTS configs
 (
-    key          VARCHAR(32)              NOT NULL,
+    key          VARCHAR(64)              NOT NULL,
     value        TEXT                     NOT NULL,
     mm_user_name VARCHAR(256)             NOT NULL,
     update_date  TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
     PRIMARY KEY (key)
 );
 
-INSERT INTO configs (key, value, mm_user_name)
-VALUES ('workTimeInSec', '28800', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('work.time.in.sec', '28800', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.absence', '!absence', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.attendance', '!attendance', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.away', '!away', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.config.get', '!config get', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.config.set', '!config set', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.help', '!help', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.last', '!last', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.members', '!members', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.now', '!now', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.online', '!online', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.rollback', '!rollback', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.start', '!start', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.status', '!status', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.stop', '!stop', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.whoami', '!whoami', 'default');
+INSERT INTO configs (key, value, mm_user_name) VALUES ('command.prefix.who', '!who', 'default');

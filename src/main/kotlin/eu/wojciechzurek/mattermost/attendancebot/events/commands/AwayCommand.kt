@@ -29,9 +29,9 @@ class AwayCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!away"
+    override fun getPrefix(): String = "command.prefix.away"
 
-    override fun getHelp(): String = "!away [reason] - away from computer/home. Optional reason."
+    override fun getHelp(): String = "[reason] - away from computer/home. Optional reason."
 
     override fun getCommandType(): CommandType = CommandType.MAIN
 

@@ -17,9 +17,9 @@ class ConfigGetCommand(
 ) : CommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!config get"
+    override fun getPrefix(): String = "command.prefix.config.get"
 
-    override fun getHelp(): String = "!config get [keyname] [keyname] - show configuration. Optional keys name."
+    override fun getHelp(): String = "[keyname] [keyname] - show configuration. Optional keys name."
 
     override fun getCommandType(): CommandType = CommandType.CONFIG
 
@@ -35,6 +35,7 @@ class ConfigGetCommand(
                 .user(userId)
                 .filter { it.roles.contains("system_admin") }
                 .flatMapMany { (if (message.isBlank()) configService.findAll() else configService.findAllById(keys)) }
+                .sort { config, config2 -> String.CASE_INSENSITIVE_ORDER.compare(config.key, config2.key) }
                 .map {
                     messageSource.getMessage("theme.config.row", arrayOf(
                             it.key,

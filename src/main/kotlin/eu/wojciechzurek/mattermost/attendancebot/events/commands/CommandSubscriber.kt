@@ -1,5 +1,6 @@
 package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
+import eu.wojciechzurek.mattermost.attendancebot.ConfigReloadedEvent
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
 import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
@@ -10,7 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.ApplicationListener
 
-abstract class CommandSubscriber : PostedEventSubscriber(), ApplicationListener<ApplicationReadyEvent> {
+abstract class CommandSubscriber : PostedEventSubscriber(), ApplicationListener<ConfigReloadedEvent> {
 
     @Autowired
     protected lateinit var mattermostService: MattermostService
@@ -26,16 +27,17 @@ abstract class CommandSubscriber : PostedEventSubscriber(), ApplicationListener<
 
     abstract fun onEvent(event: Event, message: String)
 
-    override fun onApplicationEvent(event: ApplicationReadyEvent) {
-        botService.setHelp(getCommandType(), getHelp())
+    override fun onApplicationEvent(event: ConfigReloadedEvent) {
+        botService.setHelp(getCommandType(), configService.get(getPrefix()) + " " + getHelp())
     }
 
     override fun filter(event: Event): Boolean {
-        return (event.data.post?.message?.trimStart()?.startsWith(getPrefix()) ?: false) && super.filter(event)
+        return (event.data.post?.message?.trimStart()?.startsWith(configService.get(getPrefix()))
+                ?: false) && super.filter(event)
     }
 
     override fun onEvent(event: Event) {
-        onEvent(event, event.data.post?.message?.removePrefix(getPrefix())?.trim()!!)
+        onEvent(event, event.data.post?.message?.removePrefix(configService.get(getPrefix()))?.trim()!!)
     }
 
     override fun onError(event: Event, e: Exception) {

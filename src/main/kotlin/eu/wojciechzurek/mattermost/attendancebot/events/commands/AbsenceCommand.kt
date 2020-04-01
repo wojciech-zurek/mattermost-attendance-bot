@@ -18,11 +18,12 @@ import java.util.stream.Collectors
 class AbsenceCommand(private val messageSource: MessageSource,
                      private val absencesRepository: AbsencesRepository
 ) : CommandSubscriber() {
+
     private val logger = loggerFor(this.javaClass)
 
-    override fun getPrefix(): String = "!absence"
+    override fun getPrefix(): String = "command.prefix.absence"
 
-    override fun getHelp(): String = "!absence [number] - show absences for working days. Default 10 days."
+    override fun getHelp(): String = "[number] - show absences for working days. Default 10 days."
 
     override fun getCommandType(): CommandType = CommandType.STATS
 
