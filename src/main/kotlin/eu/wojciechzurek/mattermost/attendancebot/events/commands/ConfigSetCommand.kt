@@ -41,8 +41,7 @@ class ConfigSetCommand(
                     EphemeralPost(
                             userId, Post(
                             channelId = event.data.post.channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "Config updated:\n" +
+                            message = "Config updated:\n" +
                                     "$key = $value"
                     ))
                 }

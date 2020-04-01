@@ -50,8 +50,7 @@ class ConfigGetCommand(
                     EphemeralPost(
                             userId, Post(
                             channelId = event.data.post.channelId,
-                            message = "${event.data.senderName}\n" +
-                                    it
+                            message = it
                     ))
                 }
                 .subscribe { mattermostService.ephemeralPost(it) }
