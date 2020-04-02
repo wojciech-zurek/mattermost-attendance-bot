@@ -28,8 +28,7 @@ class NowCommand : AccessCommandSubscriber() {
         val post = Post(
                 //  userId = it.data.post!!.userId,
                 channelId = event.data.post.channelId,
-                message = "${event.data.senderName}\n" +
-                        "Date: ${now.toStringDateTime()}\n" +
+                message = "Date: ${now.toStringDateTime()}\n" +
                         "Timestamp: $now"
         )
 

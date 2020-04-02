@@ -11,13 +11,13 @@ import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
 
 @Component
-class WhoCommand(
+class WhoisCommand(
         private val userRepository: UserRepository
 ) : AccessCommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getName(): String = "command.who"
+    override fun getName(): String = "command.whois"
 
     override fun getHelp(): String = "[username] - information about user"
 

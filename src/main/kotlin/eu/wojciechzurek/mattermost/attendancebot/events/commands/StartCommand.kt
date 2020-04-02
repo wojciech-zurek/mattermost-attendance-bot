@@ -49,7 +49,7 @@ class StartCommand(
                             .map {
 
                                 User(it.id, UUID.randomUUID(), it.userName, it.email,
-                                        channelId, channelName!!, channelDisplayName!!, UserMMStatus.UNKNOWN,
+                                        channelId, channelName, channelDisplayName, UserMMStatus.UNKNOWN,
                                         WorkStatus.ONLINE, now, "", now, now)
                                         .setNew()
                             }
@@ -61,24 +61,25 @@ class StartCommand(
                             .map { att ->
                                 val message = when (user.workStatus) {
                                     WorkStatus.ONLINE -> {
-                                        "${event.data.senderName}\n" +
-                                                "Sorry but you are ONLINE already :thinking: \n" +
+                                        "Sorry but you are ONLINE already :thinking: \n" +
                                                 "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
                                                 "Remember to stop your work with !stop command.\n" +
                                                 "Thanks :smiley: Have a nice day.\n"
                                     }
                                     WorkStatus.AWAY -> {
-                                        "${event.data.senderName}\n" +
-                                                "Sorry but you are AWAY right now :thinking: \n" +
-                                                "Remember to resume your work with !online command.\n"
+                                        "Sorry but you are AWAY right now :thinking: \n" +
+                                                "Remember to resume your work with !back command.\n"
                                     }
 
                                     WorkStatus.OFFLINE -> {
-                                        "${event.data.senderName}\n" +
-                                                "Sorry but you are OFFLINE and after work :thinking: \n" +
+                                        "Sorry but you are OFFLINE and after work :thinking: \n" +
                                                 "Stay save at home :mask: \n" +
                                                 "Last work stop time: " + att.signOutDate?.toStringDateTime() + "\n" +
                                                 "See you next time.\n"
+                                    }
+                                    WorkStatus.UNKNOWN -> {
+                                        "You status is... UNKNOWN :thinking: \n" +
+                                                "Contact with system admin. .\n"
                                     }
                                 }
                                 Post(channelId = channelId, message = message)
@@ -99,8 +100,7 @@ class StartCommand(
                                             val workTimeInSec = configService.get("work.time.in.sec").toLong()
                                             Post(
                                                     channelId = channelId,
-                                                    message = "${event.data.senderName}\n" +
-                                                            "You are ONLINE right now :innocent: \n" +
+                                                    message = "You are ONLINE right now :innocent: \n" +
                                                             "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
                                                             "You should end up after : " + (att.signInDate.plusSeconds(workTimeInSec)).toStringDateTime() + "\n" +
                                                             "Remember to stop your work with !stop command.\n" +

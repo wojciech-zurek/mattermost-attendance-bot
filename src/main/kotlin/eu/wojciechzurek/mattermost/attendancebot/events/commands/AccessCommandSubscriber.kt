@@ -1,70 +1,43 @@
 package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
+import eu.wojciechzurek.mattermost.attendancebot.AccessValidationResult
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.events.AccessType
+import eu.wojciechzurek.mattermost.attendancebot.services.AccessService
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.MessageSource
+import java.util.*
 
 abstract class AccessCommandSubscriber : CommandSubscriber() {
 
-    private val allowUserKey = ".allow.user"
-    private val allowChannelKey = ".allow.channel"
-    private val blockUserKey = ".block.user"
-    private val blockChannelKey = ".block.channel"
+    @Autowired
+    lateinit var accessService: AccessService
 
     override fun filter(event: Event): Boolean {
-        return super.filter(event) && checkAccess(event)
+        if (!super.filter(event)) return false
+
+        val result = accessService.checkAccess(getName(), event)
+        when (result.accessType) {
+            AccessType.NOT_ALLOWED_USER -> onAccessError(result.userId, result.channelId, "commands.access.not.allowed.user")
+            AccessType.BLOCK_USER -> onAccessError(result.userId, result.channelId, "commands.access.block.user")
+            AccessType.NOT_ALLOWED_CHANNEL -> onAccessError(result.userId, result.channelId, "commands.access.not.allowed.channel")
+            AccessType.BLOCK_CHANNEL -> onAccessError(result.userId, result.channelId, "commands.access.block.channel")
+            AccessType.ALLOWED -> return true
+        }
+        return false
     }
 
-    private fun checkAccess(event: Event): Boolean {
-        val userId = event.data.post!!.userId!!
-        val userName = event.data.senderName?.removePrefix("@")!!
-        val channelId = event.data.post.channelId
-        val channelName = event.data.channelName!!
+    private fun onAccessError(userId: String, channelId: String, key: String) {
 
-        val allowUser = configService.get(getName() + allowUserKey)
-
-        val validAllowUser = if (allowUser.isNotBlank()) {
-            allowUser.contains(userId) || allowUser.contains(userName)
-        } else {
-            true
-        }
-
-        val allowChannel = configService.get(getName() + allowChannelKey)
-
-        val validAllowChannel = if (allowChannel.isNotBlank()) {
-            allowChannel.contains(channelId) || allowChannel.contains(channelName)
-        } else {
-            true
-        }
-
-        val blockUser = configService.get(getName() + blockUserKey)
-
-        val validBlockUser = if (blockUser.isBlank()) {
-            true
-        } else {
-            !blockUser.contains(userId) && !blockUser.contains(userName)
-        }
-
-        val blockChannel = configService.get(getName() + blockChannelKey)
-
-        val validBlockChannel = if (blockChannel.isBlank()) {
-            true
-        } else {
-            !blockChannel.contains(channelId) && !blockChannel.contains(channelName)
-        }
-
-        val valid = validAllowUser && validAllowChannel && validBlockUser && validBlockChannel
-
-        if (!valid) onAccessError(userId, channelId)
-
-        return valid
-    }
-
-    private fun onAccessError(userId: String, channelId: String) {
+        val reason = messageSource.getMessage(key, null, Locale.getDefault())
 
         val post = Post(
                 channelId = channelId,
-                message = "Access denied! :rage: \n"
+                message = "Access denied! :rage: \n" +
+                        "Reason: $reason\n"
+
         )
 
         val ephemeralPost = EphemeralPost(userId, post)

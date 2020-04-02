@@ -16,7 +16,6 @@ import java.util.stream.Collectors
 
 @Component
 class AbsenceCommand(
-        private val messageSource: MessageSource,
         private val absencesRepository: AbsencesRepository
 ) : AccessCommandSubscriber() {
 
@@ -52,8 +51,7 @@ class AbsenceCommand(
                     EphemeralPost(
                             userId, Post(
                             channelId = event.data.post.channelId,
-                            message = "${event.data.senderName}\n" +
-                                    it
+                            message = it
                     ))
                 }
                 .subscribe { mattermostService.ephemeralPost(it) }

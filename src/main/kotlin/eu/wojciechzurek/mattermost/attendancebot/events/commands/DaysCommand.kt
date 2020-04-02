@@ -15,13 +15,12 @@ import java.util.*
 import java.util.stream.Collectors
 
 @Component
-class LastCommand(
-        private val messageSource: MessageSource,
+class DaysCommand(
         private val attendanceRepository: AttendanceRepository
 ) : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
-    override fun getName(): String = "command.last"
+    override fun getName(): String = "command.days"
 
     override fun getHelp(): String = "[number] - show stats for working days. Default 10 days."
 
@@ -38,7 +37,7 @@ class LastCommand(
         attendanceRepository
                 .findTopByMMUserId(userId, limit)
                 .map {
-                    messageSource.getMessage("theme.last.row", arrayOf(
+                    messageSource.getMessage("theme.days.row", arrayOf(
                             it.workDate.toStringDate(),
                             it.signInDate.toStringDateTime(),
                             it.signOutDate?.toStringDateTime() ?: "",
@@ -47,13 +46,12 @@ class LastCommand(
                     ), Locale.getDefault())
                 }
                 .collect(Collectors.joining())
-                .map { messageSource.getMessage("theme.last", arrayOf(it), Locale.getDefault()) }
+                .map { messageSource.getMessage("theme.days", arrayOf(it), Locale.getDefault()) }
                 .map {
                     EphemeralPost(
                             userId, Post(
                             channelId = event.data.post.channelId,
-                            message = "${event.data.senderName}\n" +
-                                    it
+                            message = it
                     ))
                 }
                 .subscribe { mattermostService.ephemeralPost(it) }

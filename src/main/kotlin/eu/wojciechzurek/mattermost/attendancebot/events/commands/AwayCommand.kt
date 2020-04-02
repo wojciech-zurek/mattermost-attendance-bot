@@ -71,20 +71,18 @@ class AwayCommand(
                 .map {
                     Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "You are AWAY right now :smiling_imp: \n" +
+                            message = "You are AWAY right now :smiling_imp: \n" +
                                     "Away reason: ${it.reason}\n" +
                                     "Away start time: " + it.awayTime.toStringDateTime() + "\n" +
-                                    "Remember to resume your work with !online command.\n" +
+                                    "Remember to resume your work with !back command.\n" +
                                     "Thanks :smiley: See you soon as possible.\n"
                     )
                 }
                 .switchIfEmpty {
                     Mono.just(Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "Sorry but you are not ONLINE right now :thinking: \n" +
-                                    "Start your work with !start or back to work with !online command.\n"
+                            message = "Sorry but you are not ONLINE right now :thinking: \n" +
+                                    "Start your work with !start or back to work with !back command.\n"
                     ))
                 }
                 .map { EphemeralPost(userId, it) }

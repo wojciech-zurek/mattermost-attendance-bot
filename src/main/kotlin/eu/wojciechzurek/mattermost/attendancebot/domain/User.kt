@@ -24,13 +24,13 @@ data class User(
         val userEmail: String?,
 
         @Column("mm_channel_id")
-        val channelId: String,
+        val channelId: String? = null,
 
         @Column("mm_channel_name")
-        val channelName: String,
+        val channelName: String? = null,
 
         @Column("mm_channel_display_name")
-        val channelDisplayName: String,
+        val channelDisplayName: String? = null,
 
         @Column("mm_status")
         val userMMStatus: UserMMStatus,

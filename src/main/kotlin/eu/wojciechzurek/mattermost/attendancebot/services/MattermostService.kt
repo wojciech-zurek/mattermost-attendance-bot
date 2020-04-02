@@ -20,4 +20,5 @@ interface MattermostService {
     fun getFileEndpoint(fileId: String): String
     fun getFilePreviewEndpoint(fileId: String): String
     fun ephemeralPost(body: Any)
+    fun users(): Flux<User>
 }

@@ -20,7 +20,7 @@ import java.time.LocalDateTime
 import java.time.OffsetDateTime
 
 @Component
-class OnlineCommand(
+class BackCommand(
         private val userRepository: UserRepository,
         private val attendanceRepository: AttendanceRepository,
         private val absencesRepository: AbsencesRepository
@@ -28,15 +28,15 @@ class OnlineCommand(
 
     private val logger = loggerFor(this.javaClass)
 
-    override fun getName(): String = "command.online"
+    override fun getName(): String = "command.back"
 
     override fun getHelp(): String = "- set online status (back from away status)"
 
     override fun getCommandType(): CommandType = CommandType.MAIN
 
-    override fun onEvent(event: Event, message: String) = online(event)
+    override fun onEvent(event: Event, message: String) = back(event)
 
-    private fun online(event: Event) {
+    private fun back(event: Event) {
         val userId = event.data.post!!.userId!!
         val channelId = event.data.post.channelId
         val now = OffsetDateTime.now()
@@ -73,8 +73,7 @@ class OnlineCommand(
                 .map {
                     Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "You are ONLINE right now :innocent: \n" +
+                            message = "You are ONLINE right now :innocent: \n" +
                                     "Away time: " + Duration.between(it.t1.awayTime, it.t1.onlineTime!!).seconds.toTime() + "\n" +
                                     "Today total away time: " + (it.t2.awayTime).toTime() + "\n" +
                                     "Thanks :smiley: Go back to work.\n"
@@ -83,8 +82,7 @@ class OnlineCommand(
                 .switchIfEmpty {
                     Mono.just(Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "Sorry but you are not AWAY right now :thinking: \n" +
+                            message = "Sorry but you are not AWAY right now :thinking: \n" +
                                     "To start away just use !away command, but you must be at work.\n"
                     ))
                 }

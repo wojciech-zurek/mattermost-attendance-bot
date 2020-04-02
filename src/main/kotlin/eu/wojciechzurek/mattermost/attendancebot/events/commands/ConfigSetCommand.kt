@@ -10,9 +10,7 @@ import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 
 @Component
-class ConfigSetCommand(
-        private val messageSource: MessageSource
-) : AccessCommandSubscriber() {
+class ConfigSetCommand : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.config.set"
@@ -26,7 +24,7 @@ class ConfigSetCommand(
     private fun get(event: Event, message: String) {
 
         val userId = event.data.post!!.userId!!
-        val userName = event.data.senderName?.removePrefix("@")!!
+        val userName = event.data.senderName!!
 
         val keys = message.split(" ")
         val key = keys[0]

@@ -64,8 +64,7 @@ class StopCommand(
                 .map {
                     Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "You are OFFLINE right now :sunglasses: \n" +
+                            message = "You are OFFLINE right now :sunglasses: \n" +
                                     "Work stop time: " + it.signOutDate?.toStringDateTime() + "\n" +
                                     "Today work time : " + it.workTime.toTime() + "\n" +
                                     "Today away time : " + it.awayTime.toTime() + "\n" +
@@ -75,9 +74,8 @@ class StopCommand(
                 .switchIfEmpty {
                     Mono.just(Post(
                             channelId = channelId,
-                            message = "${event.data.senderName}\n" +
-                                    "Sorry but you are not ONLINE right now :thinking: \n" +
-                                    "Start your work with !start or back to work with !online command.\n"
+                            message = "Sorry but you are not ONLINE right now :thinking: \n" +
+                                    "Start your work with !start or back to work with !back command.\n"
                     ))
                 }
                 .map { EphemeralPost(userId, it) }

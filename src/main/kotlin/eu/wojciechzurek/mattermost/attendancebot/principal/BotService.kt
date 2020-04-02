@@ -7,6 +7,9 @@ interface BotService {
     fun set(bot: Bot)
     fun get(): Bot
 
-    fun setHelp(commandType: CommandType, message: String)
-    fun getHelp(): Map<CommandType, Set<String>>
+    fun getHelp(): Map<String, String>
+    fun getCommands(): Map<CommandType, Set<String>>
+
+    fun setHelp(command: String, message: String)
+    fun setCommand(commandType: CommandType, command: String)
 }

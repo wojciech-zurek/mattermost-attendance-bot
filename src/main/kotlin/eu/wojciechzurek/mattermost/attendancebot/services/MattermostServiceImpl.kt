@@ -120,13 +120,26 @@ class MattermostServiceImpl(
     override fun channelMembers(channelId: String): Flux<ChannelMember> {
         return webClient
                 .get()
-                .uri("/channels/{channelId}/members", channelId)
+                .uri("/channels/{channelId}/members?per_page=200", channelId)
                 .retrieve()
                 .onStatus(HttpStatus::isError) {
                     it.bodyToMono<String>().subscribe { body -> logger.error(body) }
                     Mono.error(MattermostException(it.statusCode(), "Mattermost Endpoint exception"))
                 }
                 .bodyToFlux(ChannelMember::class.java)
+                .doOnNext { logger.info("User: {}", it) }
+    }
+
+    override fun users(): Flux<User> {
+        return webClient
+                .get()
+                .uri("/users?per_page=200")
+                .retrieve()
+                .onStatus(HttpStatus::isError) {
+                    it.bodyToMono<String>().subscribe { body -> logger.error(body) }
+                    Mono.error(MattermostException(it.statusCode(), "Mattermost Endpoint exception"))
+                }
+                .bodyToFlux(User::class.java)
                 .doOnNext { logger.info("User: {}", it) }
     }
 }

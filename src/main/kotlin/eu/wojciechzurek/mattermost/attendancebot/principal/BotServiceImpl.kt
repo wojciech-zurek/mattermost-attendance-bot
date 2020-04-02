@@ -12,11 +12,13 @@ class BotServiceImpl : BotService, InitializingBean {
     private lateinit var bot: Bot
     private val logger = loggerFor(this.javaClass)
 
-    private val help: MutableMap<CommandType, MutableSet<String>> = TreeMap<CommandType, MutableSet<String>>().toMutableMap()
+    private val commands: MutableMap<CommandType, MutableSet<String>> = TreeMap<CommandType, MutableSet<String>>().toMutableMap()
+
+    private val help = mutableMapOf<String, String>()
 
     override fun afterPropertiesSet() {
         CommandType.values().map {
-            help[it] = mutableSetOf<String>().toSortedSet()
+            commands[it] = mutableSetOf<String>().toSortedSet()
         }
     }
 
@@ -27,9 +29,15 @@ class BotServiceImpl : BotService, InitializingBean {
 
     override fun get(): Bot = bot
 
-    override fun setHelp(commandType: CommandType, message: String) {
-        help[commandType]?.add(message)
+    override fun setCommand(commandType: CommandType, command: String) {
+        commands[commandType]?.add(command)
     }
 
-    override fun getHelp(): Map<CommandType, Set<String>> = help
+    override fun setHelp(command: String, message: String) {
+        help[command] = message
+    }
+
+    override fun getHelp(): Map<String, String> = help
+
+    override fun getCommands(): Map<CommandType, Set<String>> = commands
 }

@@ -12,9 +12,7 @@ import java.util.*
 import java.util.stream.Collectors
 
 @Component
-class ConfigGetCommand(
-        private val messageSource: MessageSource
-) : AccessCommandSubscriber() {
+class ConfigGetCommand : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
 
     override fun getName(): String = "command.config.get"

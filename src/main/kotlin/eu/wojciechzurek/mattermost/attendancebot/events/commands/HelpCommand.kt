@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component
 import java.util.*
 
 @Component
-class HelpCommand(private val messageSource: MessageSource) : CommandSubscriber() {
+class HelpCommand : CommandSubscriber() {
 
     private val logger = loggerFor(this.javaClass)
 
@@ -24,10 +24,13 @@ class HelpCommand(private val messageSource: MessageSource) : CommandSubscriber(
 
     private fun help(event: Event) {
 
+        val helpCommand = botService.getHelp()
+
         val help = botService
-                .getHelp()
+                .getCommands()
                 .map {
-                    messageSource.getMessage(it.key.descKey, null, Locale.getDefault()) + ":\n" + it.value.joinToString("\n\t", "\t")
+                    messageSource.getMessage(it.key.descKey, null, Locale.getDefault()) + ":\n" +
+                            it.value.joinToString("\n\t", "\t") { value -> configService.get(value) + " " + helpCommand[value] }
                 }
                 .joinToString("\n\n")
 
@@ -36,8 +39,7 @@ class HelpCommand(private val messageSource: MessageSource) : CommandSubscriber(
         val post = Post(
                 //  userId = it.data.post!!.userId,
                 channelId = event.data.post.channelId,
-                message = "${event.data.senderName}\n\n" +
-                        help
+                message = help
         )
 
         val ephemeralPost = EphemeralPost(userId, post)

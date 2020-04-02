@@ -62,6 +62,7 @@ class StatusCommand(
 
                         }
                         WorkStatus.OFFLINE -> "Offline time: ${Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()}\n"
+                        WorkStatus.UNKNOWN -> "Unknown status time: ${Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()}\n"
                     }
 
                     EphemeralPost(userId,
