@@ -53,7 +53,7 @@ class StopCommand(
                     )
                 }
                 .flatMap { userRepository.save(it) }
-                .flatMap { attendanceRepository.findByMMUserIdAndWorkDate(it.userId, LocalDate.now()) }
+                .flatMap { attendanceRepository.findLatestByMMUserId(it.userId) }
                 .map {
                     it.copy(
                             signOutDate = now,
