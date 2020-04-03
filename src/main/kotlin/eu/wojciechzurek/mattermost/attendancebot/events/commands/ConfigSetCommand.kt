@@ -28,7 +28,7 @@ class ConfigSetCommand : AccessCommandSubscriber() {
 
         val keys = message.split(" ")
         val key = keys[0]
-        val value = keys.subList(1, keys.count()).joinToString("") { it.trim() }
+        val value = keys.subList(1, keys.count()).joinToString(" ") { it.trim() }
 
         mattermostService
                 .user(userId)
