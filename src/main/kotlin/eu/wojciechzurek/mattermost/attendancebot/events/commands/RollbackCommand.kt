@@ -62,6 +62,20 @@ class RollbackCommand(
                     )
                 }
                 .flatMap { attendanceRepository.save(it) }
+                .flatMap {
+                    mattermostService
+                            .directMessageChannel(listOf(botService.get().userId, it.userId))
+                            .map { channel ->
+                                Post(
+                                        channelId = channel.id,
+                                        userId = it.userId,
+                                        message = "Your status is now ONLINE\n" +
+                                                "Welcome back :relaxed: "
+                                )
+                            }.map { post ->
+                                mattermostService.post(post)
+                            }.then()
+                }
                 .map {
                     Post(
                             channelId = channelId,

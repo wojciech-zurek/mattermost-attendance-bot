@@ -93,7 +93,8 @@ class MattermostServiceImpl(
         builder.part("files", resource).filename(filename)
         builder.part("channel_id", channelId)
 
-        return webClient.post()
+        return webClient
+                .post()
                 .uri("/files")
                 .contentType(MediaType.MULTIPART_FORM_DATA)
                 .body(BodyInserters.fromMultipartData(builder.build()))
@@ -141,5 +142,18 @@ class MattermostServiceImpl(
                 }
                 .bodyToFlux(User::class.java)
                 .doOnNext { logger.info("User: {}", it) }
+    }
+
+    override fun directMessageChannel(users: List<String>): Mono<ChannelInfo> {
+        return webClient
+                .post()
+                .uri("/channels/direct")
+                .bodyValue(users)
+                .retrieve().onStatus(HttpStatus::isError) {
+                    it.bodyToMono<String>().subscribe { body -> logger.error(body) }
+                    Mono.error(MattermostException(it.statusCode(), "Mattermost Endpoint exception"))
+                }
+                .bodyToMono(ChannelInfo::class.java)
+                .doOnNext { logger.info("Direct channel: {}", it) }
     }
 }

@@ -1,9 +1,6 @@
 package eu.wojciechzurek.mattermost.attendancebot.services
 
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.ChannelMember
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.FileInfo
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Link
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.User
+import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
 import org.springframework.core.io.ByteArrayResource
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
@@ -21,4 +18,5 @@ interface MattermostService {
     fun getFilePreviewEndpoint(fileId: String): String
     fun ephemeralPost(body: Any)
     fun users(): Flux<User>
+    fun directMessageChannel(users: List<String>): Mono<ChannelInfo>
 }
