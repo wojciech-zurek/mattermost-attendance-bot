@@ -9,6 +9,7 @@ interface MattermostService {
     fun post(body: Any)
     fun user(id: String): Mono<User>
     fun userName(userName: String): Mono<User>
+    fun userSessions(id: String): Flux<UserSession>
     fun file(content: ByteArray, filename: String, channelId: String): Mono<FileInfo>
     fun file(resource: ByteArrayResource, filename: String, channelId: String): Mono<FileInfo>
     fun publicFileLink(fileId: String): Mono<Link>

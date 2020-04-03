@@ -85,6 +85,19 @@ class MattermostServiceImpl(
                 .doOnNext { logger.info("User: {}", it) }
     }
 
+    override fun userSessions(id: String): Flux<UserSession> {
+        return webClient
+                .get()
+                .uri("/users/{id}/sessions", id)
+                .retrieve()
+                .onStatus(HttpStatus::isError) {
+                    it.bodyToMono<String>().subscribe { body -> logger.error(body) }
+                    Mono.error(MattermostException(it.statusCode(), "Mattermost Endpoint exception"))
+                }
+                .bodyToFlux(UserSession::class.java)
+                .doOnNext { logger.info("User session: {}", it) }
+    }
+
     override fun file(content: ByteArray, filename: String, channelId: String): Mono<FileInfo> =
             file(ByteArrayResource(content), filename, channelId)
 

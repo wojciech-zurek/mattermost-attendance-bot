@@ -37,7 +37,7 @@ data class BroadCast(
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-data class EphemeralPost (
+data class EphemeralPost(
         @JsonProperty("user_id")
         val userId: String,
         val post: Post
@@ -72,7 +72,12 @@ data class Embed(
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 data class Props(
-        val attachments: List<Attachment>? = null
+        val attachments: List<Attachment>? = null,
+        val browser: String? = null,
+        val csrf: String? = null,
+        val isQuest: Boolean? = null,
+        val os: String? = null,
+        val platform: String? = null
 )
 
 @JsonIgnoreProperties(ignoreUnknown = true)
