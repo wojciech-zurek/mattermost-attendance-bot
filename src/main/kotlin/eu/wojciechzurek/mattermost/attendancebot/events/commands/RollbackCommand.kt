@@ -74,7 +74,8 @@ class RollbackCommand(
                                 )
                             }.map { post ->
                                 mattermostService.post(post)
-                            }.then()
+                                true
+                            }
                 }
                 .map {
                     Post(
