@@ -1,8 +1,6 @@
 package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
 import eu.wojciechzurek.mattermost.attendancebot.domain.StatusType
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
@@ -10,6 +8,7 @@ import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AbsencesRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
+import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
 import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
 import reactor.core.publisher.Mono
@@ -53,30 +52,49 @@ class BackCommand(
                     )
                 }
                 .flatMap { userRepository.save(it) }
-                .flatMap {
+                .flatMap { user ->
                     attendanceRepository
-                            .findByMMUserIdAndWorkDate(it.userId, LocalDate.now())
+                            .findLatestByMMUserId(user.userId)
                             .flatMap { att ->
                                 absencesRepository.findByAttendanceId(att.id!!).zipWith(Mono.just(att))
                             }
-                }
-                .map {
-                    it.t1.onlineTime = now
-                    it.t1.onlineType = StatusType.MANUAL
-                    val awayTime = Duration.between(it.t1.awayTime, it.t1.onlineTime!!).seconds
-                    it.t2.awayTime = it.t2.awayTime + awayTime
-                    it
-                }
-                .flatMap {
-                    absencesRepository.save(it.t1).zipWith(attendanceRepository.save(it.t2))
+                            .flatMap {
+                                it.t1.onlineTime = now
+                                it.t1.onlineType = StatusType.MANUAL
+                                val awayTime = Duration.between(it.t1.awayTime, it.t1.onlineTime!!).seconds
+                                it.t2.awayTime = it.t2.awayTime + awayTime
+
+                                absencesRepository.save(it.t1).zipWith(attendanceRepository.save(it.t2))
+                            }
+                            .map {
+                                val workTimeInSec = configService.get("work.time.in.sec").toLong()
+                                val onlineTime = Duration.between(it.t2.signInDate, now).seconds - it.t2.awayTime
+
+                                val fields = listOf(
+                                        Field(false, "${user.workStatus} time", Duration.between(user.workStatusUpdateDate, now).seconds.toTime()),
+                                        Field(true, "Today total AWAY time", it.t2.awayTime.toTime()),
+                                        Field(true, "Today total ONLINE time", onlineTime.toTime()),
+                                        Field(true, "Work start time", it.t2.signInDate.toStringDateTime()),
+                                        Field(true, "Estimated work stop time", it.t2.signInDate.plusSeconds(workTimeInSec + it.t2.awayTime).toStringDateTime())
+                                )
+
+                                Attachment(
+                                        authorName = user.userName,
+                                        title = user.workStatus.toString(),
+                                        text = user.workStatusUpdateDate.toStringDateTime(),
+                                        color = user.workStatus.color,
+                                        thumbUrl = mattermostService.getUserImageEndpoint(user.userId),
+                                        fields = fields,
+                                        footer = ""
+                                )
+                            }
                 }
                 .map {
                     Post(
                             channelId = channelId,
                             message = "You are ONLINE right now :innocent: \n" +
-                                    "Away time: " + Duration.between(it.t1.awayTime, it.t1.onlineTime!!).seconds.toTime() + "\n" +
-                                    "Today total away time: " + (it.t2.awayTime).toTime() + "\n" +
-                                    "Thanks :smiley: Go back to work.\n"
+                                    "Thanks :smiley: Go back to work.\n",
+                            props = Props(listOf(it))
                     )
                 }
                 .switchIfEmpty {

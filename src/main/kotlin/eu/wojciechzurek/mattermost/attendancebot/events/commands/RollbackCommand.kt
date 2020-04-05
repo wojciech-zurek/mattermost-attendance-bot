@@ -24,7 +24,7 @@ class RollbackCommand(
 
     override fun getName(): String = "command.rollback"
 
-    override fun getHelp(): String = "[username] - rollback user offline status to online"
+    override fun getHelp(): String = "@username - rollback user offline status to online"
 
     override fun getCommandType(): CommandType = CommandType.USER_MANAGEMENT
 
@@ -54,7 +54,7 @@ class RollbackCommand(
                     )
                 }
                 .flatMap { userRepository.save(it) }
-                .flatMap { attendanceRepository.findByMMUserIdAndWorkDate(it.userId, LocalDate.now()) }
+                .flatMap { attendanceRepository.findLatestByMMUserId(it.userId) }
                 .map {
                     it.copy(
                             signOutDate = null,
@@ -70,7 +70,7 @@ class RollbackCommand(
                                         channelId = channel.id,
                                         userId = it.userId,
                                         message = "Your status is now ONLINE\n" +
-                                                "Welcome back :relaxed: "
+                                                "Welcome back :smile: "
                                 )
                             }.map { post ->
                                 mattermostService.post(post)

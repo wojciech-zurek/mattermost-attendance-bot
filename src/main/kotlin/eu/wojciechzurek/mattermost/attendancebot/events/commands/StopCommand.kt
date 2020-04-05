@@ -1,8 +1,6 @@
 package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
@@ -53,22 +51,40 @@ class StopCommand(
                     )
                 }
                 .flatMap { userRepository.save(it) }
-                .flatMap { attendanceRepository.findLatestByMMUserId(it.userId) }
-                .map {
-                    it.copy(
-                            signOutDate = now,
-                            workTime = Duration.between(it.signInDate, now).seconds
-                    )
+                .flatMap { user ->
+                    attendanceRepository.findLatestByMMUserId(user.userId)
+                            .map { att ->
+                                att.copy(
+                                        signOutDate = now,
+                                        workTime = Duration.between(att.signInDate, now).seconds
+                                )
+                            }.flatMap {
+                                attendanceRepository.save(it)
+                            }.map {
+                                val fields = listOf(
+                                        Field(false, "${user.workStatus} time", Duration.between(user.workStatusUpdateDate, now).seconds.toTime()),
+                                        Field(true, "Total AWAY time", it.awayTime.toTime()),
+                                        Field(true, "Total ONLINE time", (it.workTime - it.awayTime).toTime()),
+                                        Field(true, "Work start time", it.signInDate.toStringDateTime())
+                                )
+
+                                Attachment(
+                                        authorName = user.userName,
+                                        title = user.workStatus.toString(),
+                                        text = user.workStatusUpdateDate.toStringDateTime(),
+                                        color = user.workStatus.color,
+                                        thumbUrl = mattermostService.getUserImageEndpoint(user.userId),
+                                        fields = fields,
+                                        footer = ""
+                                )
+                            }
                 }
-                .flatMap { attendanceRepository.save(it) }
                 .map {
                     Post(
                             channelId = channelId,
                             message = "You are OFFLINE right now :sunglasses: \n" +
-                                    "Work stop time: " + it.signOutDate?.toStringDateTime() + "\n" +
-                                    "Today work time : " + it.workTime.toTime() + "\n" +
-                                    "Today away time : " + it.awayTime.toTime() + "\n" +
-                                    "Thanks :smiley: You are after work. Have a nice day.\n"
+                                    "Thanks :smiley: You are after work. Have a nice day.\n",
+                            props = Props(listOf(it))
                     )
                 }
                 .switchIfEmpty {

@@ -22,7 +22,7 @@ class StatusCommand(
 
     override fun getName(): String = "command.status"
 
-    override fun getHelp(): String = "[username] - information about work status. Optional user name."
+    override fun getHelp(): String = "@username - information about work status. Optional user name."
 
     override fun getCommandType(): CommandType = CommandType.INFO
 
@@ -44,33 +44,42 @@ class StatusCommand(
                     val workTimeInSec = configService.get("work.time.in.sec").toLong()
                     val fields = when (it.t1.workStatus) {
                         WorkStatus.ONLINE -> {
+
+                            val onlineTime = Duration.between(it.t2.signInDate, now).seconds - it.t2.awayTime
+
                             listOf(
-                                    Field(true, "Online time", Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()),
+                                    Field(false, "${it.t1.workStatus} time", Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()),
+                                    Field(true, "Today total AWAY time", it.t2.awayTime.toTime()),
+                                    Field(true, "Today total ONLINE time", onlineTime.toTime()),
                                     Field(true, "Work start time", it.t2.signInDate.toStringDateTime()),
-                                    Field(true, "Today total away time", it.t2.awayTime.toTime()),
                                     Field(true, "Estimated work stop time", it.t2.signInDate.plusSeconds(workTimeInSec + it.t2.awayTime).toStringDateTime())
                             )
-
                         }
                         WorkStatus.AWAY -> {
                             val away = Duration.between(it.t1.workStatusUpdateDate, now).seconds
+                            val totalAway = it.t2.awayTime + away
+                            val onlineTime = Duration.between(it.t2.signInDate, now).seconds - totalAway
                             listOf(
-                                    Field(true, "Away time", away.toTime()),
-                                    Field(true, "Away reason", it.t1.absenceReason),
-                                    Field(true, "Today total away time", (it.t2.awayTime + away).toTime()),
+                                    Field(true, "${it.t1.workStatus} time", away.toTime()),
+                                    Field(true, "${it.t1.workStatus} reason", it.t1.absenceReason),
+                                    Field(true, "Today total AWAY time", totalAway.toTime()),
+                                    Field(true, "Today total ONLINE time", onlineTime.toTime()),
                                     Field(true, "Work start time", it.t2.signInDate.toStringDateTime()),
-                                    Field(true, "Estimated work stop time", it.t2.signInDate.plusSeconds(workTimeInSec + it.t2.awayTime).toStringDateTime())
+                                    Field(true, "Estimated work stop time", it.t2.signInDate.plusSeconds(workTimeInSec + totalAway).toStringDateTime())
                             )
-
                         }
                         WorkStatus.OFFLINE -> {
                             listOf(
-                                    Field(true, "Offline time", Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime())
+                                    Field(false, "${it.t1.workStatus} time", Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime()),
+                                    Field(true, "Last total AWAY time", it.t2.awayTime.toTime()),
+                                    Field(true, "Last total ONLINE time", (it.t2.workTime - it.t2.awayTime).toTime()),
+                                    Field(true, "Last work start time", it.t2.signInDate.toStringDateTime())
+
                             )
                         }
                         WorkStatus.UNKNOWN -> {
                             listOf(
-                                    Field(true, "Unknown status time", Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime())
+                                    Field(true, "${it.t1.workStatus} status time", Duration.between(it.t1.workStatusUpdateDate, now).seconds.toTime())
                             )
                         }
                     }
@@ -93,7 +102,6 @@ class StatusCommand(
                                     channelId = event.data.post.channelId,
                                     message = "",
                                     props = Props(listOf(it))
-
                             )
                     )
                 }

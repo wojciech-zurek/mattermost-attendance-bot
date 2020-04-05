@@ -1,8 +1,6 @@
 package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.EphemeralPost
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
-import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
+import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
 import eu.wojciechzurek.mattermost.attendancebot.domain.Attendance
 import eu.wojciechzurek.mattermost.attendancebot.domain.User
 import eu.wojciechzurek.mattermost.attendancebot.domain.UserMMStatus
@@ -12,8 +10,10 @@ import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import eu.wojciechzurek.mattermost.attendancebot.toStringDateTime
+import eu.wojciechzurek.mattermost.attendancebot.toTime
 import org.springframework.stereotype.Component
 import reactor.kotlin.core.publisher.switchIfEmpty
+import java.time.Duration
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.util.*
@@ -98,13 +98,32 @@ class StartCommand(
                                         .flatMap { att -> attendanceRepository.save(att) }
                                         .map { att ->
                                             val workTimeInSec = configService.get("work.time.in.sec").toLong()
+
+                                            val fields = listOf(
+                                                    Field(false, "${user.workStatus} time", Duration.between(user.workStatusUpdateDate, now).seconds.toTime()),
+                                                    Field(true, "Today total AWAY time", att.awayTime.toTime()),
+                                                    Field(true, "Today total ONLINE time", "0"),
+                                                    Field(true, "Work start time", att.signInDate.toStringDateTime()),
+                                                    Field(true, "Estimated work stop time", att.signInDate.plusSeconds(workTimeInSec + att.awayTime).toStringDateTime())
+                                            )
+
+                                            Attachment(
+                                                    authorName = user.userName,
+//                            authorIcon = mattermostService.getUserImageEndpoint(it.t1.id),
+                                                    title = user.workStatus.toString(),
+                                                    text = user.workStatusUpdateDate.toStringDateTime(),
+                                                    color = user.workStatus.color,
+                                                    thumbUrl = mattermostService.getUserImageEndpoint(user.userId),
+                                                    fields = fields,
+                                                    footer = ""
+                                            )
+                                        }.map {
                                             Post(
                                                     channelId = channelId,
                                                     message = "You are ONLINE right now :innocent: \n" +
-                                                            "Work start time: " + att.signInDate.toStringDateTime() + "\n" +
-                                                            "You should end up after : " + (att.signInDate.plusSeconds(workTimeInSec)).toStringDateTime() + "\n" +
                                                             "Remember to stop your work with !stop command.\n" +
-                                                            "Thanks :smiley: Have a nice day.\n"
+                                                            "Thanks :smiley: Have a nice day.\n",
+                                                    props = Props(listOf(it))
                                             )
                                         }
 
