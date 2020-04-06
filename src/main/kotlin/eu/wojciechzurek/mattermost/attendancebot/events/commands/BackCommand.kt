@@ -2,6 +2,7 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
 import eu.wojciechzurek.mattermost.attendancebot.domain.StatusType
+import eu.wojciechzurek.mattermost.attendancebot.domain.UserMMStatus
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
@@ -53,8 +54,10 @@ class BackCommand(
                 }
                 .flatMap { userRepository.save(it) }
                 .flatMap { user ->
-                    attendanceRepository
-                            .findLatestByMMUserId(user.userId)
+                    mattermostService.userStatus(UserStatus(user.userId, UserMMStatus.ONLINE.desc))
+                            .flatMap {
+                                attendanceRepository.findLatestByMMUserId(user.userId)
+                            }
                             .flatMap { att ->
                                 absencesRepository.findByAttendanceId(att.id!!).zipWith(Mono.just(att))
                             }

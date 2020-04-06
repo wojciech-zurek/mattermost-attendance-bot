@@ -20,4 +20,6 @@ interface MattermostService {
     fun ephemeralPost(body: Any)
     fun users(): Flux<User>
     fun directMessageChannel(users: List<String>): Mono<ChannelInfo>
+    fun userStatus(userStatus: UserStatus): Mono<UserStatus>
+    fun userStatus(id: String): Mono<UserStatus>
 }

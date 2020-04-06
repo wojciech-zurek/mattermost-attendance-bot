@@ -2,6 +2,7 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
 import eu.wojciechzurek.mattermost.attendancebot.domain.Absence
+import eu.wojciechzurek.mattermost.attendancebot.domain.UserMMStatus
 import eu.wojciechzurek.mattermost.attendancebot.domain.WorkStatus
 import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
@@ -65,7 +66,9 @@ class AwayCommand(
                             message,
                             now
                     )
-                    absencesRepository.save(absence).map { _ ->
+                    absencesRepository.save(absence).flatMap { _ ->
+                        mattermostService.userStatus(UserStatus(it.t1.userId, UserMMStatus.AWAY.desc))
+                    }.map { _ ->
                         val away = Duration.between(it.t1.workStatusUpdateDate, now).seconds
                         val workTimeInSec = configService.get("work.time.in.sec").toLong()
 

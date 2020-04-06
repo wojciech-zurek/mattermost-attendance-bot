@@ -1,6 +1,7 @@
 package eu.wojciechzurek.mattermost.attendancebot.services
 
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.*
+import eu.wojciechzurek.mattermost.attendancebot.domain.UserMMStatus
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.ByteArrayResource
@@ -168,5 +169,30 @@ class MattermostServiceImpl(
                 }
                 .bodyToMono(ChannelInfo::class.java)
                 .doOnNext { logger.info("Direct channel: {}", it) }
+    }
+
+    override fun userStatus(id: String): Mono<UserStatus> {
+        return webClient
+                .get()
+                .uri("/users/{id}/status", id)
+                .retrieve().onStatus(HttpStatus::isError) {
+                    it.bodyToMono<String>().subscribe { body -> logger.error(body) }
+                    Mono.error(MattermostException(it.statusCode(), "Mattermost Endpoint exception"))
+                }
+                .bodyToMono(UserStatus::class.java)
+                .doOnNext { logger.info("User status: {}", it) }
+    }
+
+    override fun userStatus(userStatus: UserStatus): Mono<UserStatus> {
+        return webClient
+                .put()
+                .uri("/users/{id}/status", userStatus.userId)
+                .bodyValue(userStatus)
+                .retrieve().onStatus(HttpStatus::isError) {
+                    it.bodyToMono<String>().subscribe { body -> logger.error(body) }
+                    Mono.error(MattermostException(it.statusCode(), "Mattermost Endpoint exception"))
+                }
+                .bodyToMono(UserStatus::class.java)
+                .doOnNext { logger.info("User status: {}", it) }
     }
 }
