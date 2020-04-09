@@ -17,4 +17,7 @@ interface AttendanceRepository : ReactiveCrudRepository<Attendance, Long> {
 
     @Query("SELECT * FROM attendance WHERE mm_user_id = :user_id ORDER BY id DESC LIMIT :limit")
     fun findTopByMMUserId(userId: String, limit: Int): Flux<Attendance>
+
+    @Query("SELECT * FROM attendance WHERE mm_user_id = :user_id AND EXTRACT(year FROM 'work_date') = :year AND EXTRACT(month FROM 'work_date') = :month ORDER BY id ASC")
+    fun findByMMUserIdAndMonth(userId: String, year: Int, month: Int): Flux<Attendance>
 }
