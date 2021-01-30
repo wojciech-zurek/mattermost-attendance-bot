@@ -22,3 +22,4 @@ fun LocalDateTime.milli(): Long = this.atZone(ZoneId.systemDefault()).toInstant(
 fun LocalDateTime.toStringDateTime(): String = this.format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd"))
 
 fun OffsetDateTime.toStringDateTime(): String = this.format(DateTimeFormatter.ofPattern("HH:mm:ss yyyy-MM-dd"))
+fun OffsetDateTime.toTime(): String = this.format(DateTimeFormatter.ofPattern("HH:mm:ss"))

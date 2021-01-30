@@ -14,6 +14,9 @@ interface AbsencesRepository : ReactiveCrudRepository<Absence, Long> {
     @Query("SELECT * FROM absences WHERE attendance_id = :attendance_id ORDER BY id DESC LIMIT 1")
     fun findByAttendanceId(attendanceId: Long): Mono<Absence>
 
+    @Query("SELECT * FROM absences WHERE attendance_id = :attendance_id ORDER BY id ASC")
+    fun findAllByAttendanceId(attendanceId: Long): Flux<Absence>
+
     @Query("SELECT * FROM absences WHERE mm_user_id = :user_id ORDER BY id DESC LIMIT :limit")
     fun findTopByMMUserId(userId: String, limit: Int): Flux<Absence>
 }

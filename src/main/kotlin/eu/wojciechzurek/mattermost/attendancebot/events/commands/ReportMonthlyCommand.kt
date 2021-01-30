@@ -2,24 +2,16 @@ package eu.wojciechzurek.mattermost.attendancebot.events.commands
 
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Event
 import eu.wojciechzurek.mattermost.attendancebot.api.mattermost.Post
-import eu.wojciechzurek.mattermost.attendancebot.domain.ReportByUserName
 import eu.wojciechzurek.mattermost.attendancebot.events.CommandType
 import eu.wojciechzurek.mattermost.attendancebot.loggerFor
-import eu.wojciechzurek.mattermost.attendancebot.repository.AttendanceRepository
 import eu.wojciechzurek.mattermost.attendancebot.repository.ReportRepository
-import eu.wojciechzurek.mattermost.attendancebot.repository.UserRepository
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.stereotype.Component
-import reactor.kotlin.core.publisher.switchIfEmpty
-import reactor.kotlin.core.publisher.toFlux
-import reactor.kotlin.core.publisher.toMono
 import java.time.LocalDate
 import kotlin.streams.toList
 
 @Component
 class ReportMonthlyCommand(
-        private val userRepository: UserRepository,
-        private val attendanceRepository: AttendanceRepository,
         private val reportRepository: ReportRepository
 ) : AccessCommandSubscriber() {
     private val logger = loggerFor(this.javaClass)
